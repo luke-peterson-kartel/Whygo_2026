@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Outcome } from '@/types/whygo.types';
-import { User } from 'lucide-react';
+import { User, ChevronDown, ChevronRight } from 'lucide-react';
 
 interface OutcomeRowProps {
   outcome: Outcome;
@@ -7,63 +8,83 @@ interface OutcomeRowProps {
 }
 
 export function OutcomeRow({ outcome, number }: OutcomeRowProps) {
-  return (
-    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-      {/* Outcome Header */}
-      <div className="flex items-start gap-3 mb-4">
-        <div className="flex-shrink-0">
-          <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-            {number}
-          </div>
-        </div>
-        <div className="flex-1">
-          <p className="text-gray-900 font-medium mb-2">{outcome.description}</p>
-          <div className="flex items-center gap-4 text-sm text-gray-600">
-            <div className="flex items-center gap-1">
-              <User className="w-4 h-4" />
-              <span>{outcome.ownerName}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-500">Annual Target:</span>
-              <span className="font-semibold text-gray-900">
-                {formatValue(outcome.annualTarget, outcome.unit)}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+  const [isExpanded, setIsExpanded] = useState(false);
 
-      {/* Quarterly Progress */}
-      <div className="grid grid-cols-4 gap-3">
-        <QuarterCard
-          quarter="Q1"
-          target={outcome.q1Target}
-          actual={outcome.q1Actual}
-          status={outcome.q1Status}
-          unit={outcome.unit}
-        />
-        <QuarterCard
-          quarter="Q2"
-          target={outcome.q2Target}
-          actual={outcome.q2Actual}
-          status={outcome.q2Status}
-          unit={outcome.unit}
-        />
-        <QuarterCard
-          quarter="Q3"
-          target={outcome.q3Target}
-          actual={outcome.q3Actual}
-          status={outcome.q3Status}
-          unit={outcome.unit}
-        />
-        <QuarterCard
-          quarter="Q4"
-          target={outcome.q4Target}
-          actual={outcome.q4Actual}
-          status={outcome.q4Status}
-          unit={outcome.unit}
-        />
-      </div>
+  return (
+    <div className="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden">
+      {/* Collapsible Header Button */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        aria-expanded={isExpanded}
+        aria-label={`Toggle outcome ${number}: ${outcome.description}`}
+        className="w-full text-left p-4 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      >
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0">
+            <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+              {number}
+            </div>
+          </div>
+          <div className="flex-1">
+            <p className="text-gray-900 font-medium mb-2">{outcome.description}</p>
+            <div className="flex items-center gap-4 text-sm text-gray-600">
+              <div className="flex items-center gap-1">
+                <User className="w-4 h-4" />
+                <span>{outcome.ownerName}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-500">Annual Target:</span>
+                <span className="font-semibold text-gray-900">
+                  {formatValue(outcome.annualTarget, outcome.unit)}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="flex-shrink-0 ml-2">
+            {isExpanded ? (
+              <ChevronDown className="w-5 h-5 text-gray-600" />
+            ) : (
+              <ChevronRight className="w-5 h-5 text-gray-600" />
+            )}
+          </div>
+        </div>
+      </button>
+
+      {/* Quarterly Progress - Conditionally Rendered */}
+      {isExpanded && (
+        <div className="px-4 pb-4">
+          <div className="grid grid-cols-4 gap-3 pt-2 border-t border-gray-200">
+            <QuarterCard
+              quarter="Q1"
+              target={outcome.q1Target}
+              actual={outcome.q1Actual}
+              status={outcome.q1Status}
+              unit={outcome.unit}
+            />
+            <QuarterCard
+              quarter="Q2"
+              target={outcome.q2Target}
+              actual={outcome.q2Actual}
+              status={outcome.q2Status}
+              unit={outcome.unit}
+            />
+            <QuarterCard
+              quarter="Q3"
+              target={outcome.q3Target}
+              actual={outcome.q3Actual}
+              status={outcome.q3Status}
+              unit={outcome.unit}
+            />
+            <QuarterCard
+              quarter="Q4"
+              target={outcome.q4Target}
+              actual={outcome.q4Actual}
+              status={outcome.q4Status}
+              unit={outcome.unit}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
