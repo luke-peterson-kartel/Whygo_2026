@@ -91,15 +91,21 @@ export default function FourHandoffCycle() {
         </p>
       </div>
 
-      {/* Handoff Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      {/* Scroll hint for mobile */}
+      <div className="mb-4 text-sm text-gray-500 text-center md:hidden">
+        ← Scroll horizontally to view all handoffs →
+      </div>
+
+      {/* Handoff Cards - Horizontal Scroll Container */}
+      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 mb-6">
+        <div className="flex items-start gap-4 min-w-max pb-4">
         {handoffs.map((handoff, index) => {
           const Icon = handoff.icon;
           const colors = colorClasses[handoff.color as keyof typeof colorClasses];
 
           return (
             <React.Fragment key={handoff.number}>
-              <div className={`${colors.bg} border-2 ${colors.border} rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow`}>
+              <div className={`w-72 flex-shrink-0 ${colors.bg} border-2 ${colors.border} rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow`}>
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
                   <div className={`${colors.badge} px-3 py-1 rounded-full text-sm font-bold`}>
@@ -134,14 +140,15 @@ export default function FourHandoffCycle() {
 
               {/* Arrow between cards (not after last one) */}
               {index < handoffs.length - 1 && (
-                <div className="hidden lg:flex items-center justify-center">
+                <div className="flex items-center justify-center flex-shrink-0 pt-8">
                   <ArrowRight className="h-8 w-8 text-gray-400" />
                 </div>
               )}
             </React.Fragment>
           );
         })}
-      </div>
+        </div> {/* Close flex container */}
+      </div> {/* Close scroll container */}
 
       {/* Completion Note */}
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
