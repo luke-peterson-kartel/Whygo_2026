@@ -79,7 +79,7 @@ const colorClasses = {
   },
 };
 
-export default function FourHandoffCycle() {
+export function FourHandoffCycle() {
   return (
     <div className="mb-8">
       <div className="mb-6">

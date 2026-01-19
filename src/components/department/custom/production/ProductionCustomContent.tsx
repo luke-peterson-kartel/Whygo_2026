@@ -1,4 +1,4 @@
-import FourHandoffCycle from './FourHandoffCycle';
+import { FourHandoffCycle } from './FourHandoffCycle';
 
 export function ProductionCustomContent() {
   return (
