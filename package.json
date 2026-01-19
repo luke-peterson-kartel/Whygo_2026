@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "migrate:employees": "tsx scripts/migrate-employees.ts",
-    "migrate:whygos": "tsx scripts/migrate-whygos.ts"
+    "migrate:whygos": "tsx scripts/migrate-whygos.ts",
+    "clear:whygos": "tsx scripts/clear-whygos.ts"
   },
   "devDependencies": {
     "@types/react": "^19.2.8",
