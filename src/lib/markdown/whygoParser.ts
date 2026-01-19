@@ -162,14 +162,24 @@ function parseWhyGOSection(
     sortOrder: number;
   }
 ): ParsedWhyGO | null {
-  // Extract WHY statement
-  const whyMatch = section.match(/\|\s*WHY\s*\|([^|]+)/is);
+  // Extract WHY statement - handle both formats:
+  // Company format: | WHY | content |
+  // Department format: | WHY\ncontent |
+  let whyMatch = section.match(/\|\s*WHY\s*\|\s*([^|]+?)\s*\|/is);
+  if (!whyMatch) {
+    // Try multi-line format
+    whyMatch = section.match(/\|\s*WHY\s*\n([^|]+?)\s*\|/is);
+  }
   if (!whyMatch) return null;
 
   const why = whyMatch[1].trim();
 
-  // Extract GOAL statement
-  const goalMatch = section.match(/\|\s*GOAL\s*\|([^|]+)/is);
+  // Extract GOAL statement - handle both formats
+  let goalMatch = section.match(/\|\s*GOAL\s*\|\s*([^|]+?)\s*\|/is);
+  if (!goalMatch) {
+    // Try multi-line format
+    goalMatch = section.match(/\|\s*GOAL\s*\n([^|]+?)\s*\|/is);
+  }
   if (!goalMatch) return null;
 
   const goal = goalMatch[1].trim();
@@ -214,33 +224,51 @@ function parseOutcomesTable(section: string): ParsedOutcome[] {
   rows.forEach((row, index) => {
     const cells = row.split('|').map(cell => cell.trim()).filter(cell => cell);
 
-    // Expect format: | # | Outcome | Annual | Q1 | Q2 | Q3 | Q4 | Owner |
-    if (cells.length >= 7) {
-      const description = cells[1];
-      const annual = cells[2];
-      const q1 = cells[3];
-      const q2 = cells[4];
-      const q3 = cells[5];
-      const q4 = cells[6];
-      const ownerName = cells[7] || '';
+    // Handle two formats:
+    // Company format: | # | Outcome | Annual | Q1 | Q2 | Q3 | Q4 | Owner | (8 columns)
+    // Department format: | Outcome | Q1 | Q2 | Q3 | Q4 | Owner | (6 columns)
 
-      // Generate owner email
-      const firstName = ownerName.split(' ')[0].toLowerCase();
-      const ownerId = firstName ? `${firstName}@kartel.ai` : '';
+    let description, q1, q2, q3, q4, ownerName, annual;
 
-      outcomes.push({
-        description,
-        annualTarget: parseValue(annual),
-        unit: detectUnit(annual),
-        q1Target: parseValue(q1),
-        q2Target: parseValue(q2),
-        q3Target: parseValue(q3),
-        q4Target: parseValue(q4),
-        ownerId,
-        ownerName,
-        sortOrder: index + 1,
-      });
+    if (cells.length === 8) {
+      // Company format with # and Annual columns
+      description = cells[1];
+      annual = cells[2];
+      q1 = cells[3];
+      q2 = cells[4];
+      q3 = cells[5];
+      q4 = cells[6];
+      ownerName = cells[7] || '';
+    } else if (cells.length === 6) {
+      // Department format without # and Annual columns
+      description = cells[0];
+      annual = 'N/A'; // Department format doesn't have annual target in table
+      q1 = cells[1];
+      q2 = cells[2];
+      q3 = cells[3];
+      q4 = cells[4];
+      ownerName = cells[5] || '';
+    } else {
+      // Skip rows that don't match expected formats
+      return;
     }
+
+    // Generate owner email
+    const firstName = ownerName.split(' ')[0].toLowerCase();
+    const ownerId = firstName ? `${firstName}@kartel.ai` : '';
+
+    outcomes.push({
+      description,
+      annualTarget: parseValue(annual),
+      unit: detectUnit(annual),
+      q1Target: parseValue(q1),
+      q2Target: parseValue(q2),
+      q3Target: parseValue(q3),
+      q4Target: parseValue(q4),
+      ownerId,
+      ownerName,
+      sortOrder: index + 1,
+    });
   });
 
   return outcomes;
