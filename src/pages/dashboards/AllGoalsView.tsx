@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/config/firebase';
+import { useMemo } from 'react';
 import { WhyGOWithOutcomes } from '@/types/whygo.types';
 import { Target } from 'lucide-react';
 import { StrategicContext } from '@/components/whygo/StrategicContext';
@@ -8,6 +6,7 @@ import { DependenciesSection } from '@/components/dependencies/DependenciesSecti
 import { DepartmentSection } from '@/components/whygo/DepartmentSection';
 import { StatusLegend } from '@/components/whygo/StatusLegend';
 import { getDepartmentColor } from '@/lib/departmentColors';
+import { useWhyGOs } from '@/hooks/useWhyGOs';
 
 interface OrganizedWhyGOs {
   company: WhyGOWithOutcomes[];
@@ -19,66 +18,14 @@ interface OrganizedWhyGOs {
 }
 
 export function AllGoalsView() {
-  const [organized, setOrganized] = useState<OrganizedWhyGOs>({
-    company: [],
-    sales: [],
-    production: [],
-    generative: [],
-    platform: [],
-    community: []
+  const { whygos, loading, error, refetch } = useWhyGOs({
+    year: 2026,
+    status: ['draft', 'active'],
+    sortCompanyGoals: true
   });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadAllWhyGOs();
-  }, []);
-
-  async function loadAllWhyGOs() {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Query ALL WhyGOs for 2026 (company + department)
-      const whygosRef = collection(db, 'whygos');
-      const q = query(
-        whygosRef,
-        where('year', '==', 2026),
-        where('status', 'in', ['draft', 'active'])
-      );
-
-      const querySnapshot = await getDocs(q);
-      const loadedWhyGOs: WhyGOWithOutcomes[] = [];
-
-      // Load WhyGOs with outcomes
-      for (const doc of querySnapshot.docs) {
-        const whygoData = { id: doc.id, ...doc.data() } as WhyGOWithOutcomes;
-
-        // Load outcomes subcollection
-        const outcomesRef = collection(db, 'whygos', doc.id, 'outcomes');
-        const outcomesSnapshot = await getDocs(outcomesRef);
-
-        whygoData.outcomes = outcomesSnapshot.docs.map(outcomeDoc => ({
-          id: outcomeDoc.id,
-          ...outcomeDoc.data(),
-        })) as any[];
-
-        whygoData.outcomes.sort((a, b) => a.sortOrder - b.sortOrder);
-        loadedWhyGOs.push(whygoData);
-      }
-
-      // Organize by level and department
-      const organizedData = organizeWhyGOsByDepartment(loadedWhyGOs);
-      setOrganized(organizedData);
-    } catch (err) {
-      console.error('Error loading WhyGOs:', err);
-      setError('Failed to load goals. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function organizeWhyGOsByDepartment(whygos: WhyGOWithOutcomes[]): OrganizedWhyGOs {
+  // Organize WhyGOs by department
+  const organized = useMemo((): OrganizedWhyGOs => {
     const company = whygos.filter(w => w.level === 'company');
     const sales = whygos.filter(w => w.level === 'department' && w.department === 'Sales');
     const production = whygos.filter(w => w.level === 'department' && w.department === 'Production');
@@ -86,25 +33,8 @@ export function AllGoalsView() {
     const platform = whygos.filter(w => w.level === 'department' && w.department === 'Platform');
     const community = whygos.filter(w => w.level === 'department' && w.department === 'Community');
 
-    // Sort company WhyGOs by display order
-    const goalOrder = [
-      'Onboard 10 enterprise clients',
-      'Establish operational infrastructure',
-      'Deploy the three-pillar',
-      'Build Discord community'
-    ];
-
-    company.sort((a, b) => {
-      const aIndex = goalOrder.findIndex(prefix => a.goal?.startsWith(prefix));
-      const bIndex = goalOrder.findIndex(prefix => b.goal?.startsWith(prefix));
-      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-      if (aIndex !== -1) return -1;
-      if (bIndex !== -1) return 1;
-      return 0;
-    });
-
     return { company, sales, production, generative, platform, community };
-  }
+  }, [whygos]);
 
   if (loading) {
     return (
@@ -122,7 +52,7 @@ export function AllGoalsView() {
       <div className="bg-red-50 border border-red-200 rounded-lg p-6">
         <p className="text-red-800">{error}</p>
         <button
-          onClick={loadAllWhyGOs}
+          onClick={refetch}
           className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
         >
           Retry

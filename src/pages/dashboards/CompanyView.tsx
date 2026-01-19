@@ -1,99 +1,16 @@
-import { useEffect, useState } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/config/firebase';
-import { WhyGOWithOutcomes } from '@/types/whygo.types';
 import { WhyGOCard } from '@/components/whygo/WhyGOCard';
 import { StrategicContext } from '@/components/whygo/StrategicContext';
 import { StatusLegend } from '@/components/whygo/StatusLegend';
 import { Building2 } from 'lucide-react';
+import { useWhyGOs } from '@/hooks/useWhyGOs';
 
 export function CompanyView() {
-  const [whygos, setWhygos] = useState<WhyGOWithOutcomes[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    loadCompanyWhyGOs();
-  }, []);
-
-  async function loadCompanyWhyGOs() {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Query company-level WhyGOs for 2026
-      const whygosRef = collection(db, 'whygos');
-      const q = query(
-        whygosRef,
-        where('level', '==', 'company'),
-        where('year', '==', 2026),
-        where('status', 'in', ['draft', 'active'])
-      );
-
-      const querySnapshot = await getDocs(q);
-      const loadedWhyGOs: WhyGOWithOutcomes[] = [];
-
-      console.log('=== COMPANY WHYGO QUERY RESULTS ===');
-      console.log(`Total documents returned: ${querySnapshot.size}`);
-
-      // Log all documents with their level field
-      querySnapshot.docs.forEach((doc, index) => {
-        const data = doc.data();
-        console.log(`${index + 1}. ID: ${doc.id}`);
-        console.log(`   Level: "${data.level}"`);
-        console.log(`   Goal: ${data.goal?.substring(0, 50)}...`);
-        console.log(`   Department: ${data.department || 'N/A'}`);
-      });
-
-      for (const doc of querySnapshot.docs) {
-        const whygoData = { id: doc.id, ...doc.data() } as WhyGOWithOutcomes;
-
-        // Load outcomes subcollection
-        const outcomesRef = collection(db, 'whygos', doc.id, 'outcomes');
-        const outcomesSnapshot = await getDocs(outcomesRef);
-
-        whygoData.outcomes = outcomesSnapshot.docs.map(outcomeDoc => ({
-          id: outcomeDoc.id,
-          ...outcomeDoc.data(),
-        })) as any[];
-
-        // Sort outcomes by sortOrder
-        whygoData.outcomes.sort((a, b) => a.sortOrder - b.sortOrder);
-
-        loadedWhyGOs.push(whygoData);
-      }
-
-      // Sort WhyGOs by desired display order
-      const goalOrder = [
-        'Onboard 10 enterprise clients',
-        'Establish operational infrastructure',
-        'Deploy the three-pillar',
-        'Build Discord community'
-      ];
-
-      loadedWhyGOs.sort((a, b) => {
-        const aIndex = goalOrder.findIndex(prefix => a.goal?.startsWith(prefix));
-        const bIndex = goalOrder.findIndex(prefix => b.goal?.startsWith(prefix));
-
-        // If both found, sort by their position in goalOrder
-        if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-
-        // If only one found, it comes first
-        if (aIndex !== -1) return -1;
-        if (bIndex !== -1) return 1;
-
-        // If neither found, maintain original order
-        return 0;
-      });
-
-      setWhygos(loadedWhyGOs);
-    } catch (err) {
-      console.error('Error loading company WhyGOs:', err);
-      setError('Failed to load company goals. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  }
+  const { whygos, loading, error, refetch } = useWhyGOs({
+    level: 'company',
+    year: 2026,
+    status: ['draft', 'active'],
+    sortCompanyGoals: true
+  });
 
   if (loading) {
     return (
@@ -111,7 +28,7 @@ export function CompanyView() {
       <div className="bg-red-50 border border-red-200 rounded-lg p-6">
         <p className="text-red-800">{error}</p>
         <button
-          onClick={loadCompanyWhyGOs}
+          onClick={refetch}
           className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
         >
           Retry
