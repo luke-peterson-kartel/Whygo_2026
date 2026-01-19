@@ -19,23 +19,38 @@ export function useAuth() {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       try {
         if (firebaseUser) {
-          // Fetch employee document from Firestore
-          const employeeDoc = await getDoc(doc(db, 'employees', firebaseUser.uid));
+          // Fetch employee document from Firestore using email as document ID
+          const userEmail = firebaseUser.email;
+
+          if (!userEmail) {
+            console.error('No email found for authenticated user');
+            setUser(null);
+            setError(new Error('Authentication error. No email found.'));
+            setLoading(false);
+            return;
+          }
+
+          const employeeDoc = await getDoc(doc(db, 'employees', userEmail));
 
           if (employeeDoc.exists()) {
-            const employeeData = { id: employeeDoc.id, ...employeeDoc.data() } as Employee;
+            const employeeData = {
+              id: employeeDoc.id,
+              ...employeeDoc.data()
+            } as Employee;
+
             setUser({
               ...employeeData,
               firebaseUid: firebaseUser.uid,
             });
           } else {
             // User authenticated but not in employees collection
-            console.error('User not found in employees collection');
+            console.error('User not found in employees collection:', userEmail);
             setUser(null);
-            setError(new Error('User not authorized. Please contact your administrator.'));
+            setError(new Error('User not authorized. Only @kartel.ai employees can access this app.'));
           }
         } else {
           setUser(null);
+          setError(null);
         }
       } catch (err) {
         console.error('Error fetching user data:', err);
