@@ -5,11 +5,28 @@ import { WhyGOWithOutcomes } from '@/types/whygo.types';
 import { Target } from 'lucide-react';
 import { StrategicContext } from '@/components/whygo/StrategicContext';
 import { DependenciesSection } from '@/components/dependencies/DependenciesSection';
-import { CondensedWhyGOCard } from '@/components/whygo/CondensedWhyGOCard';
+import { DepartmentSection } from '@/components/whygo/DepartmentSection';
 import { StatusLegend } from '@/components/whygo/StatusLegend';
+import { getDepartmentColor } from '@/lib/departmentColors';
+
+interface OrganizedWhyGOs {
+  company: WhyGOWithOutcomes[];
+  sales: WhyGOWithOutcomes[];
+  production: WhyGOWithOutcomes[];
+  generative: WhyGOWithOutcomes[];
+  platform: WhyGOWithOutcomes[];
+  community: WhyGOWithOutcomes[];
+}
 
 export function AllGoalsView() {
-  const [whygos, setWhygos] = useState<WhyGOWithOutcomes[]>([]);
+  const [organized, setOrganized] = useState<OrganizedWhyGOs>({
+    company: [],
+    sales: [],
+    production: [],
+    generative: [],
+    platform: [],
+    community: []
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,33 +67,43 @@ export function AllGoalsView() {
         loadedWhyGOs.push(whygoData);
       }
 
-      // Separate by level and filter to company only
-      const companyWhyGOs = loadedWhyGOs.filter(w => w.level === 'company');
-
-      // Sort company WhyGOs by display order
-      const goalOrder = [
-        'Onboard 10 enterprise clients',
-        'Establish operational infrastructure',
-        'Deploy the three-pillar',
-        'Build Discord community'
-      ];
-
-      companyWhyGOs.sort((a, b) => {
-        const aIndex = goalOrder.findIndex(prefix => a.goal?.startsWith(prefix));
-        const bIndex = goalOrder.findIndex(prefix => b.goal?.startsWith(prefix));
-        if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
-        if (aIndex !== -1) return -1;
-        if (bIndex !== -1) return 1;
-        return 0;
-      });
-
-      setWhygos(companyWhyGOs);
+      // Organize by level and department
+      const organizedData = organizeWhyGOsByDepartment(loadedWhyGOs);
+      setOrganized(organizedData);
     } catch (err) {
       console.error('Error loading WhyGOs:', err);
       setError('Failed to load goals. Please try again.');
     } finally {
       setLoading(false);
     }
+  }
+
+  function organizeWhyGOsByDepartment(whygos: WhyGOWithOutcomes[]): OrganizedWhyGOs {
+    const company = whygos.filter(w => w.level === 'company');
+    const sales = whygos.filter(w => w.level === 'department' && w.department === 'Sales');
+    const production = whygos.filter(w => w.level === 'department' && w.department === 'Production');
+    const generative = whygos.filter(w => w.level === 'department' && w.department === 'Generative');
+    const platform = whygos.filter(w => w.level === 'department' && w.department === 'Platform');
+    const community = whygos.filter(w => w.level === 'department' && w.department === 'Community');
+
+    // Sort company WhyGOs by display order
+    const goalOrder = [
+      'Onboard 10 enterprise clients',
+      'Establish operational infrastructure',
+      'Deploy the three-pillar',
+      'Build Discord community'
+    ];
+
+    company.sort((a, b) => {
+      const aIndex = goalOrder.findIndex(prefix => a.goal?.startsWith(prefix));
+      const bIndex = goalOrder.findIndex(prefix => b.goal?.startsWith(prefix));
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+      return 0;
+    });
+
+    return { company, sales, production, generative, platform, community };
   }
 
   if (loading) {
@@ -104,6 +131,9 @@ export function AllGoalsView() {
     );
   }
 
+  const totalWhyGOs = organized.company.length + organized.sales.length + organized.production.length +
+                      organized.generative.length + organized.platform.length + organized.community.length;
+
   return (
     <div>
       {/* Page Header */}
@@ -115,7 +145,7 @@ export function AllGoalsView() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">All Goals</h1>
             <p className="text-gray-600 mt-1">
-              2026 Strategic Alignment - Company & Department Goals
+              2026 Strategic Alignment - Company & All Department Goals
             </p>
           </div>
         </div>
@@ -127,8 +157,8 @@ export function AllGoalsView() {
       {/* Dependencies Section */}
       <DependenciesSection />
 
-      {/* Company WhyGOs with Condensed View */}
-      {whygos.length === 0 ? (
+      {/* ALL SECTIONS - Collapsible by Department */}
+      {totalWhyGOs === 0 ? (
         <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
           <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No Goals Yet</h3>
@@ -138,18 +168,65 @@ export function AllGoalsView() {
         </div>
       ) : (
         <div className="space-y-6">
-          {whygos.map((whygo, index) => (
-            <CondensedWhyGOCard
-              key={whygo.id}
-              whygo={whygo}
-              number={index + 1}
+          {/* Company Section */}
+          {organized.company.length > 0 && (
+            <DepartmentSection
+              department="Company"
+              whygos={organized.company}
+              colorScheme="from-blue-600 to-purple-600"
+              defaultExpanded={true}
             />
-          ))}
+          )}
+
+          {/* Sales Section */}
+          {organized.sales.length > 0 && (
+            <DepartmentSection
+              department="Sales"
+              whygos={organized.sales}
+              colorScheme={getDepartmentColor('Sales')}
+            />
+          )}
+
+          {/* Production Section */}
+          {organized.production.length > 0 && (
+            <DepartmentSection
+              department="Production"
+              whygos={organized.production}
+              colorScheme={getDepartmentColor('Production')}
+            />
+          )}
+
+          {/* Generative Section */}
+          {organized.generative.length > 0 && (
+            <DepartmentSection
+              department="Generative"
+              whygos={organized.generative}
+              colorScheme={getDepartmentColor('Generative')}
+            />
+          )}
+
+          {/* Platform Section */}
+          {organized.platform.length > 0 && (
+            <DepartmentSection
+              department="Platform"
+              whygos={organized.platform}
+              colorScheme={getDepartmentColor('Platform')}
+            />
+          )}
+
+          {/* Community Section */}
+          {organized.community.length > 0 && (
+            <DepartmentSection
+              department="Community"
+              whygos={organized.community}
+              colorScheme={getDepartmentColor('Community')}
+            />
+          )}
         </div>
       )}
 
       {/* Status Legend */}
-      {whygos.length > 0 && <StatusLegend />}
+      {totalWhyGOs > 0 && <StatusLegend />}
     </div>
   );
 }

@@ -6,13 +6,16 @@ import { Target, User, Calendar } from 'lucide-react';
 interface CondensedWhyGOCardProps {
   whygo: WhyGOWithOutcomes;
   number: number;
+  colorScheme?: string;  // optional gradient override
 }
 
-export function CondensedWhyGOCard({ whygo, number }: CondensedWhyGOCardProps) {
+export function CondensedWhyGOCard({ whygo, number, colorScheme }: CondensedWhyGOCardProps) {
+  const headerGradient = colorScheme || 'from-blue-600 to-purple-600';
+
   return (
     <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
       {/* Header - Reuse from WhyGOCard */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-lg">
+      <div className={`bg-gradient-to-r ${headerGradient} text-white p-6 rounded-t-lg`}>
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-semibold mb-3">
@@ -72,10 +75,12 @@ export function CondensedWhyGOCard({ whygo, number }: CondensedWhyGOCardProps) {
         )}
       </div>
 
-      {/* Supporting Department Goals */}
-      <div className="p-6">
-        <SupportingDepartmentGoals companyGoal={whygo.goal} />
-      </div>
+      {/* Supporting Department Goals - ONLY for company level */}
+      {whygo.level === 'company' && (
+        <div className="p-6">
+          <SupportingDepartmentGoals companyGoal={whygo.goal} />
+        </div>
+      )}
     </div>
   );
 }
