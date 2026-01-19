@@ -8,7 +8,12 @@ import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import * as fs from 'fs';
 import * as path from 'path';
-import { parseWhyGOMarkdown, generateWhyGOId, generateOutcomeId } from '../src/lib/markdown/whygoParser';
+import { fileURLToPath } from 'url';
+import { parseWhyGOMarkdown, generateWhyGOId, generateOutcomeId } from '../src/lib/markdown/whygoParser.js';
+
+// ES module equivalents of __dirname and __filename
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Initialize Firebase Admin
 const serviceAccount = JSON.parse(
