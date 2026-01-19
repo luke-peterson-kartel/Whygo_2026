@@ -162,27 +162,52 @@ function parseWhyGOSection(
     sortOrder: number;
   }
 ): ParsedWhyGO | null {
-  // Extract WHY statement - handle both formats:
-  // Company format: | WHY | content |
-  // Department format: | WHY\ncontent |
+  // Extract WHY statement - handle three formats:
+  // Format 1 (Company): | WHY | content |
+  // Format 2 (Sales/etc): | WHY\ncontent |
+  // Format 3 (Production/etc): WHY\n\ncontent\n\nGOAL
+
+  let why = '';
+  let goal = '';
+
+  // Try Format 1: Inline table
   let whyMatch = section.match(/\|\s*WHY\s*\|\s*([^|]+?)\s*\|/is);
-  if (!whyMatch) {
-    // Try multi-line format
+  if (whyMatch) {
+    why = whyMatch[1].trim();
+  } else {
+    // Try Format 2: Multi-line table
     whyMatch = section.match(/\|\s*WHY\s*\n([^|]+?)\s*\|/is);
+    if (whyMatch) {
+      why = whyMatch[1].trim();
+    } else {
+      // Try Format 3: Standalone section
+      whyMatch = section.match(/WHY\s*\n\s*\n([\s\S]+?)\n\s*\nGOAL/i);
+      if (whyMatch) {
+        why = whyMatch[1].trim();
+      }
+    }
   }
-  if (!whyMatch) return null;
 
-  const why = whyMatch[1].trim();
+  if (!why) return null;
 
-  // Extract GOAL statement - handle both formats
+  // Extract GOAL statement - same three formats
   let goalMatch = section.match(/\|\s*GOAL\s*\|\s*([^|]+?)\s*\|/is);
-  if (!goalMatch) {
-    // Try multi-line format
+  if (goalMatch) {
+    goal = goalMatch[1].trim();
+  } else {
     goalMatch = section.match(/\|\s*GOAL\s*\n([^|]+?)\s*\|/is);
+    if (goalMatch) {
+      goal = goalMatch[1].trim();
+    } else {
+      // Try standalone section format
+      goalMatch = section.match(/GOAL\s*\n\s*\n([\s\S]+?)\n\s*\nOUTCOMES/i);
+      if (goalMatch) {
+        goal = goalMatch[1].trim();
+      }
+    }
   }
-  if (!goalMatch) return null;
 
-  const goal = goalMatch[1].trim();
+  if (!goal) return null;
 
   // Extract outcomes table
   const outcomes = parseOutcomesTable(section);
