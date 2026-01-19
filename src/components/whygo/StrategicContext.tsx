@@ -1,11 +1,29 @@
-import { TrendingUp, AlertCircle, AlertTriangle, Lightbulb, Target, Trophy } from 'lucide-react';
+import { useState } from 'react';
+import { TrendingUp, AlertCircle, AlertTriangle, Lightbulb, Target, Trophy, ChevronDown, ChevronRight } from 'lucide-react';
 
 export function StrategicContext() {
-  return (
-    <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6 mb-8">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">Strategic Context</h2>
+  const [isExpanded, setIsExpanded] = useState(false);
 
-      <div className="space-y-4">
+  return (
+    <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg mb-8 overflow-hidden">
+      {/* Collapsible Header */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full text-left p-6 hover:bg-blue-100/50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900">Strategic Context</h2>
+          {isExpanded ? (
+            <ChevronDown className="w-6 h-6 text-gray-600 flex-shrink-0" />
+          ) : (
+            <ChevronRight className="w-6 h-6 text-gray-600 flex-shrink-0" />
+          )}
+        </div>
+      </button>
+
+      {/* Collapsible Content */}
+      {isExpanded && (
+        <div className="px-6 pb-6 space-y-4">
         {/* The Market Shift */}
         <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-blue-100">
           <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
@@ -85,6 +103,7 @@ export function StrategicContext() {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }
