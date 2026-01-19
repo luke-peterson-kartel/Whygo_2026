@@ -1,4 +1,4 @@
-import { Building2, Users, Flask } from 'lucide-react';
+import { Building2, Users, Beaker } from 'lucide-react';
 
 const platforms = [
   {
@@ -22,7 +22,7 @@ const platforms = [
     priority: 'Active',
     purpose: 'Experimental vibe-coded projects',
     status: 'Ongoing exploration',
-    icon: Flask,
+    icon: Beaker,
     color: 'purple',
   },
 ];
