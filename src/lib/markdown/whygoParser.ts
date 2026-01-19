@@ -72,14 +72,16 @@ export function parseWhyGOMarkdown(content: string, filePath: string): ParsedWhy
  * Detect WhyGO level from file path
  */
 function detectLevel(filePath: string): WhyGOLevel {
-  // Check for specific folder names to avoid ambiguity
-  // (path contains both "Company" and "Department" in "WHYGOS _Company_Department")
-  if (filePath.includes('Company Whygos/')) return 'company';
-  if (filePath.includes('Department Whygos/')) return 'department';
+  // All files are now in "Company Whygos/" folder, so detect by filename pattern
+  // Company: Kartel_AI_Company_WhyGO or COMPANY_WHYGOS.md
+  if (filePath.includes('Kartel_AI_Company_WhyGO') || filePath.includes('COMPANY_WHYGOS.md')) {
+    return 'company';
+  }
 
-  // Fallback to file naming patterns
-  if (filePath.includes('COMPANY_WHYGOS.md')) return 'company';
-  if (filePath.includes('_Department_WhyGOs')) return 'department';
+  // Department: *_Department_WhyGOs*.md pattern
+  if (filePath.includes('_Department_WhyGOs')) {
+    return 'department';
+  }
 
   return 'individual';
 }
