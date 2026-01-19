@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, enableIndexedDbPersistence, disableNetwork, enableNetwork, clearIndexedDbPersistence } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,6 +15,14 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// TEMPORARY: Clear cache to force fresh data
+if (import.meta.env.DEV) {
+  console.log('[Firebase] Clearing IndexedDB cache...');
+  clearIndexedDbPersistence(db)
+    .then(() => console.log('[Firebase] Cache cleared successfully'))
+    .catch((err) => console.warn('[Firebase] Could not clear cache:', err));
+}
 
 // Configure Google Auth Provider for Workspace SSO
 export const googleProvider = new GoogleAuthProvider();

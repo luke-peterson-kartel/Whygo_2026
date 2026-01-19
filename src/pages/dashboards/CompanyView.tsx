@@ -31,6 +31,18 @@ export function CompanyView() {
       const querySnapshot = await getDocs(q);
       const loadedWhyGOs: WhyGOWithOutcomes[] = [];
 
+      console.log('=== COMPANY WHYGO QUERY RESULTS ===');
+      console.log(`Total documents returned: ${querySnapshot.size}`);
+
+      // Log all documents with their level field
+      querySnapshot.docs.forEach((doc, index) => {
+        const data = doc.data();
+        console.log(`${index + 1}. ID: ${doc.id}`);
+        console.log(`   Level: "${data.level}"`);
+        console.log(`   Goal: ${data.goal?.substring(0, 50)}...`);
+        console.log(`   Department: ${data.department || 'N/A'}`);
+      });
+
       for (const doc of querySnapshot.docs) {
         const whygoData = { id: doc.id, ...doc.data() } as WhyGOWithOutcomes;
 
@@ -48,6 +60,29 @@ export function CompanyView() {
 
         loadedWhyGOs.push(whygoData);
       }
+
+      // Sort WhyGOs by desired display order
+      const goalOrder = [
+        'Onboard 10 enterprise clients',
+        'Establish operational infrastructure',
+        'Build Discord community',
+        'Deploy the three-pillar'
+      ];
+
+      loadedWhyGOs.sort((a, b) => {
+        const aIndex = goalOrder.findIndex(prefix => a.goal?.startsWith(prefix));
+        const bIndex = goalOrder.findIndex(prefix => b.goal?.startsWith(prefix));
+
+        // If both found, sort by their position in goalOrder
+        if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+
+        // If only one found, it comes first
+        if (aIndex !== -1) return -1;
+        if (bIndex !== -1) return 1;
+
+        // If neither found, maintain original order
+        return 0;
+      });
 
       setWhygos(loadedWhyGOs);
     } catch (err) {
