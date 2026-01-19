@@ -47,6 +47,27 @@ export function Home() {
         </p>
       </div>
 
+      {/* Strategic Context Hero */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg p-8 mb-8">
+        <h2 className="text-2xl font-bold mb-4">Why 2026 Matters</h2>
+        <p className="text-lg mb-4">
+          2026 is the year Kartel proves Creative Intelligence Infrastructure works for enterprise.
+          We're validating market demand across 5 verticals, demonstrating operational excellence,
+          building our talent engine, and deploying platform infrastructure that creates switching costs.
+        </p>
+        <p className="text-lg mb-4">
+          <strong>What Winning Looks Like:</strong> By end of 2026, Kartel will be the proven Creative Intelligence Infrastructure
+          partner for enterprise brands - with referenceable clients across five verticals, operational systems that scale,
+          and a talent engine that compounds our capacity.
+        </p>
+        <Link
+          to="/company"
+          className="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+        >
+          View Full Strategic Context →
+        </Link>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {quickActions.map((action) => (
           <Link
