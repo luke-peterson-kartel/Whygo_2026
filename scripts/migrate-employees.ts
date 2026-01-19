@@ -62,9 +62,9 @@ interface EmployeeData {
 // Email domain for Kartel AI
 const EMAIL_DOMAIN = '@kartel.ai';
 
-// Helper function to generate email from name
+// Helper function to generate email from name (first name only)
 function generateEmail(name: string): string {
-  return name.toLowerCase().replace(' ', '.') + EMAIL_DOMAIN;
+  return name.split(' ')[0].toLowerCase() + EMAIL_DOMAIN;
 }
 
 // All 22 Kartel AI employees
