@@ -28,7 +28,7 @@ const db = getFirestore();
 
 // Paths to WhyGO markdown files
 const WHYGO_PATHS = {
-  company: path.join(__dirname, '../WhyGos/WHYGOS _Company_Department/Company Whygos/Kartel_AI_Company_WhyGO__2026(Final).md'),
+  company: path.join(__dirname, '../WhyGos/WHYGOS _Company_Department/Company Whygos/COMPANY_WHYGOS.md'),
   departments: [
     path.join(__dirname, '../WhyGos/WHYGOS _Company_Department/Department Whygos/Sales_Department_WhyGOs__2026(Final).md'),
     path.join(__dirname, '../WhyGos/WHYGOS _Company_Department/Department Whygos/Production_Department_WhyGOs_2026(Final).md'),

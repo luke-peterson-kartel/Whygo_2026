@@ -142,8 +142,8 @@ function extractMetadata(content: string): { lastUpdated: string; status: WhyGOS
  * Extract WhyGO sections from markdown
  */
 function extractWhyGOSections(content: string): string[] {
-  // Match sections starting with "## WhyGO #" or "## Company WhyGO #"
-  const whygoRegex = /##\s+(?:Company\s+)?WhyGO\s+#\d+[:\s]+.+?(?=##\s+(?:Company\s+)?WhyGO\s+#\d+|##\s+Tracking|##\s+Executive|##\s+Approval|$)/gis;
+  // Match sections starting with "## WhyGO #" or "# WhyGO #" or "## Company WhyGO #"
+  const whygoRegex = /#{1,2}\s+(?:Company\s+)?WhyGO\s+#\d+[:\s]+.+?(?=#{1,2}\s+(?:Company\s+)?WhyGO\s+#\d+|##?\s+Tracking|##?\s+Executive|##?\s+Approval|##?\s+Addendum|#\s+Company\s+WhyGO|$)/gis;
   const matches = content.match(whygoRegex);
 
   return matches || [];
@@ -162,10 +162,11 @@ function parseWhyGOSection(
     sortOrder: number;
   }
 ): ParsedWhyGO | null {
-  // Extract WHY statement - handle three formats:
+  // Extract WHY statement - handle four formats:
   // Format 1 (Company): | WHY | content |
   // Format 2 (Sales/etc): | WHY\ncontent |
   // Format 3 (Production/etc): WHY\n\ncontent\n\nGOAL
+  // Format 4 (COMPANY_WHYGOS.md): ### WHY\n\ncontent
 
   let why = '';
   let goal = '';
@@ -184,13 +185,19 @@ function parseWhyGOSection(
       whyMatch = section.match(/WHY\s*\n\s*\n([\s\S]+?)\n\s*\nGOAL/i);
       if (whyMatch) {
         why = whyMatch[1].trim();
+      } else {
+        // Try Format 4: Heading-based (COMPANY_WHYGOS.md format)
+        whyMatch = section.match(/###\s+WHY\s*\n+([^\n#]+(?:\n(?!###)[^\n]+)*)/is);
+        if (whyMatch) {
+          why = whyMatch[1].trim();
+        }
       }
     }
   }
 
   if (!why) return null;
 
-  // Extract GOAL statement - same three formats
+  // Extract GOAL statement - same four formats
   let goalMatch = section.match(/\|\s*GOAL\s*\|\s*([^|]+?)\s*\|/is);
   if (goalMatch) {
     goal = goalMatch[1].trim();
@@ -203,6 +210,12 @@ function parseWhyGOSection(
       goalMatch = section.match(/GOAL\s*\n\s*\n([\s\S]+?)\n\s*\nOUTCOMES/i);
       if (goalMatch) {
         goal = goalMatch[1].trim();
+      } else {
+        // Try Format 4: Heading-based format
+        goalMatch = section.match(/###\s+GOAL\s*\n+([^\n#]+(?:\n(?!###)[^\n]+)*)/is);
+        if (goalMatch) {
+          goal = goalMatch[1].trim();
+        }
       }
     }
   }
