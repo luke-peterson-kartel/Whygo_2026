@@ -3,6 +3,12 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Login } from '@/pages/Login';
 import { Home } from '@/pages/Home';
+import { PhilosophyIndex } from '@/pages/philosophy/PhilosophyIndex';
+import { Step1_SimpleExplanation } from '@/pages/philosophy/Step1_SimpleExplanation';
+import { Step2_ConfusionCheck } from '@/pages/philosophy/Step2_ConfusionCheck';
+import { Step3_RefinementCycles } from '@/pages/philosophy/Step3_RefinementCycles';
+import { Step4_UnderstandingChallenge } from '@/pages/philosophy/Step4_UnderstandingChallenge';
+import { Step5_TeachingSnapshot } from '@/pages/philosophy/Step5_TeachingSnapshot';
 
 export function App() {
   return (
@@ -14,8 +20,13 @@ export function App() {
           <Route element={<AppLayout />}>
             <Route path="/" element={<Home />} />
 
-            {/* Philosophy Module - placeholder routes */}
-            <Route path="/philosophy" element={<PlaceholderPage title="Philosophy" />} />
+            {/* Philosophy Module */}
+            <Route path="/philosophy" element={<PhilosophyIndex />} />
+            <Route path="/philosophy/step1" element={<Step1_SimpleExplanation />} />
+            <Route path="/philosophy/step2" element={<Step2_ConfusionCheck />} />
+            <Route path="/philosophy/step3" element={<Step3_RefinementCycles />} />
+            <Route path="/philosophy/step4" element={<Step4_UnderstandingChallenge />} />
+            <Route path="/philosophy/step5" element={<Step5_TeachingSnapshot />} />
 
             {/* Dashboard routes - placeholders */}
             <Route path="/company" element={<PlaceholderPage title="Company Dashboard" />} />

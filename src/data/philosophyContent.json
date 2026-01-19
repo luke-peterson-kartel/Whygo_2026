@@ -1,0 +1,292 @@
+{
+  "step1_analogies": [
+    {
+      "id": "gps-metaphor",
+      "concept": "WhyGo Framework",
+      "analogy": "Think of WhyGo like a GPS navigation system for the company",
+      "explanation": "Just like GPS needs three things to guide you - your current location (WHY context), your destination (GOAL), and mile markers along the way (OUTCOMES) - WhyGo guides Kartel to strategic success with the same three components.",
+      "example": {
+        "why": "Current location: Enterprise clients need 100% brand accuracy, generic AI tools only deliver 70%",
+        "goal": "Destination: Onboard 10 enterprise clients across 5 verticals by Q2 2026",
+        "outcomes": "Mile markers: 4 clients by Q1, 10 by Q2, track revenue growth quarterly"
+      }
+    },
+    {
+      "id": "north-star",
+      "concept": "WHY Statement",
+      "analogy": "WHY is your North Star - it explains why this journey matters",
+      "explanation": "Before sailors set a course, they need to know WHY they're sailing. The WHY statement (3 sentences or less) explains the strategic context and what happens if we don't achieve this goal.",
+      "example": "Enterprise clients require custom AI models to achieve 100% brand accuracy - generic tools only deliver 70%. Proving our Creative Intelligence Infrastructure works across multiple verticals demonstrates market demand and creates referenceable case studies for growth."
+    },
+    {
+      "id": "destination",
+      "concept": "GOAL Statement",
+      "analogy": "GOAL is your destination - where you'll be by year-end",
+      "explanation": "A clear destination makes the difference between wandering and journeying. The GOAL states exactly what will be different by the end of the year - specific, measurable, time-bound.",
+      "example": "Onboard 10 enterprise clients across 5 key verticals by end of Q2 2026, establishing Kartel as the category leader in Creative Intelligence Infrastructure."
+    },
+    {
+      "id": "mile-markers",
+      "concept": "OUTCOMES",
+      "analogy": "OUTCOMES are mile markers - proof you're making progress",
+      "explanation": "On a road trip, mile markers tell you if you're on pace. Outcomes (2-3 per goal) are measurable proof points with quarterly pacing. If you hit all outcomes, you must achieve the goal.",
+      "example": "Mile marker 1: 4 clients by Q1, 10 by Q2, 14 by Q3, 18+ by Q4. Mile marker 2: Revenue at $1.5M → $3.5M → $5.5M → $7M. Mile marker 3: 2 verticals → 5 verticals."
+    }
+  ],
+  "step2_misconceptions": [
+    {
+      "id": "q1",
+      "question": "Is 'Attend all client meetings' a good outcome?",
+      "options": ["Yes - it's measurable", "No - it's an activity, not a result"],
+      "correct": 1,
+      "explanation": "This is an ACTIVITY (what you'll do), not an OUTCOME (what will be different as a result). A better outcome would be 'Client NPS reaches 50+' which measures the result of good client engagement.",
+      "fix": {
+        "before": "Attend all client meetings",
+        "after": "Client NPS reaches 50+",
+        "why": "Outcomes measure results, not activities. Focus on 'what changes' not 'what you do'."
+      }
+    },
+    {
+      "id": "q2",
+      "question": "Should you have 5-7 WhyGos to cover all your priorities?",
+      "options": ["Yes - more coverage is better", "No - maximum 3 forces focus"],
+      "correct": 1,
+      "explanation": "WhyGo limits you to maximum 3 goals per entity (company/department/individual). This constraint FORCES ruthless prioritization. If you have 4+ candidates, you must choose the top 3 that matter most. Less is more - the constraint is the feature.",
+      "realWorld": "Kartel has exactly 4 company WhyGos for 2026: Prove PMF, Build Operational Excellence, Build Talent Engine, Deploy Enterprise Platform. Not 10, not 7, just 4 most critical priorities."
+    },
+    {
+      "id": "q3",
+      "question": "Is 'Better communication' a measurable outcome?",
+      "options": ["Yes - we'll know if it improved", "No - needs specific metric"],
+      "correct": 1,
+      "explanation": "'Better' is vague - better than what? By how much? Measured how? A measurable outcome needs numbers, percentages, dates, or clear yes/no milestones. Better would be '95% handoff compliance' or 'Zero client escalations due to miscommunication'.",
+      "fix": {
+        "before": "Better communication between production and sales",
+        "after": "95% handoff compliance tracked in platform",
+        "why": "You can count 95% compliance. You can't count 'better'."
+      }
+    },
+    {
+      "id": "q4",
+      "question": "Can individual goals be completely separate from department goals?",
+      "options": ["Yes - everyone has unique priorities", "No - must ladder up to department goals"],
+      "correct": 1,
+      "explanation": "Every WhyGo must LADDER UP: Individual goals connect to Department goals, Department goals connect to Company goals. No orphan goals. This creates alignment - everyone rowing in the same direction.",
+      "analogy": "Think of it like a tree: Company WhyGos are the trunk, Department WhyGos are main branches, Individual WhyGos are smaller branches. Every branch connects to the trunk through the system."
+    },
+    {
+      "id": "q5",
+      "question": "If you're tracking 5 outcomes for a single WhyGo, is that okay?",
+      "options": ["Yes - more metrics = better tracking", "No - maximum 3 outcomes per WhyGo"],
+      "correct": 1,
+      "explanation": "Maximum 3 outcomes per WhyGo. Why? Because if you need 5 different proof points, you probably have 2 goals disguised as 1. The constraint forces clarity. Each outcome should be substantial enough to prove the goal was achieved.",
+      "rule": "Max 3 WhyGos per entity. Max 3 outcomes per WhyGo. These constraints aren't arbitrary - they force focus and clarity."
+    }
+  ],
+  "step3_refinement_cycles": {
+    "cycle1": {
+      "title": "The Basic Structure: WHY-GOAL-OUTCOME",
+      "summary": "Understanding the three components and how they work together",
+      "content": [
+        {
+          "component": "WHY",
+          "definition": "Strategic context explaining why this goal exists",
+          "rules": ["3 sentences maximum", "Explains connection to higher-level goals", "Answers: what happens if we don't achieve this?"],
+          "realExample": "Enterprise clients require custom AI models and workflows to achieve 100% brand accuracy - generic tools only deliver 70%. Proving our Creative Intelligence Infrastructure works across multiple verticals demonstrates market demand, validates our thesis, and creates referenceable case studies for growth."
+        },
+        {
+          "component": "GOAL",
+          "definition": "Clear statement of what will be different by year-end",
+          "rules": ["Specific and measurable", "Has a timeframe", "Single owner identified", "Outcome-focused, not activity-focused"],
+          "realExample": "Onboard 10 enterprise clients across 5 key verticals by end of Q2 2026, establishing Kartel as the category leader in Creative Intelligence Infrastructure."
+        },
+        {
+          "component": "OUTCOMES",
+          "definition": "Measurable proof points that demonstrate goal achievement (2-3 per goal)",
+          "rules": ["Numbers, percentages, dates, or clear yes/no", "Quarterly pacing (Q1/Q2/Q3/Q4 targets)", "Single owner per outcome", "If all outcomes achieved, goal must be achieved"],
+          "realExample": "Outcome 1: Enterprise clients signed (4 → 10 → 14 → 18+). Outcome 2: Verticals with 2+ clients (2 → 5 → 5 → 5). Outcome 3: Revenue closed ($1.5M → $3.5M → $5.5M → $7M)."
+        }
+      ],
+      "keyInsight": "These three components work together like a complete story: WHY sets the context, GOAL states the destination, OUTCOMES prove you got there."
+    },
+    "cycle2": {
+      "title": "Strategic Alignment: The Laddering System",
+      "summary": "How Company → Department → Individual goals connect to create organizational alignment",
+      "content": [
+        {
+          "level": "Company WhyGos",
+          "owner": "CEO",
+          "count": "Maximum 3-4 for entire company",
+          "purpose": "Top strategic priorities for the year",
+          "kartelExample": "Kartel 2026 has exactly 4: (1) Prove Product-Market Fit, (2) Build Operational Excellence, (3) Build Talent Engine, (4) Deploy Enterprise Platform"
+        },
+        {
+          "level": "Department WhyGos",
+          "owner": "Department Head",
+          "count": "Maximum 3 per department",
+          "purpose": "How this department contributes to company success",
+          "mustLadder": "Every department WhyGo must connect to 1 of the company WhyGos",
+          "kartelExample": "Sales Department's WhyGo 'Land Enterprise Clients Across Verticals' ladders to Company WhyGo #1 'Prove Product-Market Fit'"
+        },
+        {
+          "level": "Individual WhyGos",
+          "owner": "Employee",
+          "count": "Maximum 3 per person",
+          "purpose": "How you personally contribute to department and company success",
+          "mustLadder": "Every individual WhyGo must connect to 1 of your department's WhyGos",
+          "kartelExample": "A Producer's WhyGo about '50% production margin' ladders to Production Department's WhyGo about 'Premier Client Experience'"
+        }
+      ],
+      "visualization": "COMPANY WhyGo #1: Prove PMF → SALES DEPT WhyGo: Land 10 Clients → INDIVIDUAL (Account Manager): Onboard 4 Clients in Beauty Vertical",
+      "keyInsight": "Laddering creates coordination without micromanagement. Everyone knows how their work connects to company success."
+    },
+    "cycle3": {
+      "title": "Why Constraints Matter: Focus Through Limitation",
+      "summary": "Understanding why 'maximum 3' isn't a suggestion - it's the whole point",
+      "content": [
+        {
+          "constraint": "Maximum 3 WhyGos per entity",
+          "purpose": "Forces ruthless prioritization",
+          "problem": "Most companies try to do too much and achieve too little",
+          "solution": "Limiting to 3 forces hard choices about what matters MOST",
+          "realWorld": "When Kartel leadership tried to list 2026 priorities, we had 12 candidates. The constraint forced us to choose the 4 that would have the biggest impact. The 8 we cut weren't bad ideas - they just weren't top 4."
+        },
+        {
+          "constraint": "Maximum 3 outcomes per WhyGo",
+          "purpose": "Forces clear definition of success",
+          "problem": "Too many metrics dilutes focus and makes goals fuzzy",
+          "solution": "3 outcomes maximum means each must be substantial proof of achievement",
+          "realWorld": "If you think you need 5 outcomes, you probably have 2 goals disguised as 1. Split them or choose the 3 that matter most."
+        },
+        {
+          "constraint": "WHY must be 3 sentences or less",
+          "purpose": "Forces clarity of strategic thinking",
+          "problem": "Long explanations often hide unclear thinking",
+          "solution": "3 sentences forces you to distill to essence: why does this matter?",
+          "realWorld": "If you can't explain why in 3 sentences, you probably don't understand the strategic context well enough yet."
+        },
+        {
+          "constraint": "Measurable outcomes only",
+          "purpose": "Enables objective progress tracking and accountability",
+          "problem": "Vague goals like 'better quality' are impossible to measure or hold people accountable for",
+          "solution": "Numbers, percentages, dates, yes/no milestones - you know exactly where you stand",
+          "realWorld": "'Better quality' → '50% margin' and '90%+ on-time delivery'. Now you can track progress weekly and know if you're [+] [~] or [-]."
+        }
+      ],
+      "keyInsight": "The constraints aren't arbitrary rules - they're what make WhyGo work. They trade flexibility for focus, complexity for clarity."
+    }
+  },
+  "step4_challenges": [
+    {
+      "id": "fix-goal-1",
+      "type": "fix_goal",
+      "weak_goal": "Improve our sales process",
+      "prompt": "What makes this goal weak? How would you improve it?",
+      "hints": ["Not measurable - 'improve' is vague", "No timeframe", "Activity vs outcome - what's the result?", "No specific target"],
+      "issues": ["Vague (what does 'improve' mean?)", "Not measurable", "No timeframe", "Outcome-based, not activity-based"],
+      "strong_example": "Onboard 10 enterprise clients across 5 verticals by Q2 2026",
+      "explanation": "The strong version is specific (10 clients, 5 verticals), measurable (you can count), time-bound (Q2 2026), and outcome-focused (clients onboarded, not process improved)."
+    },
+    {
+      "id": "fix-goal-2",
+      "type": "fix_goal",
+      "weak_goal": "Attend more client meetings and build better relationships",
+      "prompt": "Is this a goal or an activity? How would you make it outcome-based?",
+      "hints": ["This describes what you'll DO, not what will be DIFFERENT", "What's the result of better relationships?", "How do you measure relationship quality?"],
+      "issues": ["Activity-based (attending meetings)", "Vague (what's 'better'?)", "Not measurable"],
+      "strong_example": "Client NPS reaches 50+ and retention rate hits 90%+",
+      "explanation": "Instead of describing activities (meetings), describe the outcome (satisfied clients who stay). NPS and retention rate are measurable proof of relationship quality."
+    },
+    {
+      "id": "identify-issues",
+      "type": "identify_issues",
+      "scenario": "A manager creates 5 WhyGos: (1) Increase revenue, (2) Improve team culture, (3) Better client communication, (4) Faster delivery, (5) Reduce costs",
+      "prompt": "What's wrong with this WhyGo setup? Select all that apply.",
+      "options": [
+        {"text": "Too many WhyGos (max 3)", "correct": true},
+        {"text": "Goals are too vague", "correct": true},
+        {"text": "Missing WHY statements", "correct": true},
+        {"text": "No quarterly pacing", "correct": true},
+        {"text": "Nothing wrong", "correct": false}
+      ],
+      "explanation": "Multiple issues: (1) 5 WhyGos exceeds max of 3, (2) Goals like 'improve culture' and 'better communication' are vague and not measurable, (3) No WHY context explaining strategic importance, (4) No quarterly targets to track progress."
+    },
+    {
+      "id": "match-ladder",
+      "type": "match_alignment",
+      "prompt": "Match each Department WhyGo to the Company WhyGo it supports:",
+      "companyWhyGos": [
+        {"id": "pmf", "name": "#1 Prove Product-Market Fit"},
+        {"id": "ops", "name": "#2 Build Operational Excellence"},
+        {"id": "talent", "name": "#3 Build Talent Engine"},
+        {"id": "platform", "name": "#4 Deploy Enterprise Platform"}
+      ],
+      "departmentWhyGos": [
+        {"id": "sales-clients", "text": "Sales: Land 10 enterprise clients across 5 verticals", "correctMatch": "pmf"},
+        {"id": "production-margin", "text": "Production: Deliver 50% margin with 90%+ on-time delivery", "correctMatch": "ops"},
+        {"id": "community-discord", "text": "Community: Build 1,000 Discord members and deploy 20 Kartel Talent", "correctMatch": "talent"},
+        {"id": "platform-tools", "text": "Platform: Launch Client Portal and Production Management tools", "correctMatch": "platform"}
+      ],
+      "explanation": "Each department's top goal directly supports one of the company's strategic priorities. This alignment ensures everyone's rowing in the same direction."
+    },
+    {
+      "id": "quarterly-pacing",
+      "type": "build_pacing",
+      "prompt": "You have a goal to onboard 16 clients by year-end. Build a realistic quarterly pacing:",
+      "annualTarget": 16,
+      "guidance": "Consider: Q1 is ramp-up (slower), Q2-Q3 is peak execution, Q4 might slow for holidays",
+      "examplePacing": {"Q1": 4, "Q2": 10, "Q3": 14, "Q4": 16},
+      "explanation": "Realistic pacing: 4 by Q1 (ramp-up), 10 by Q2 (strong execution), 14 by Q3 (continued growth), 16 by Q4 (final push). Notice it's cumulative - 10 by Q2 means 10 total, not 10 more."
+    }
+  ],
+  "step5_summary": {
+    "title": "WhyGo Framework: Your Teaching Snapshot",
+    "core_concept": "WhyGo is Kartel's annual goal system that creates alignment through ruthless prioritization and measurable outcomes",
+    "why_it_exists": "Enterprise clients need 100% brand accuracy. Generic AI tools only deliver 70%. WhyGo ensures everyone at Kartel focuses on proving we can deliver that 100% across multiple industries.",
+    "three_components": {
+      "why": {
+        "what": "Strategic context (3 sentences max)",
+        "purpose": "Explains why this goal matters and what happens if we don't achieve it",
+        "analogy": "Your North Star - explains why you're sailing"
+      },
+      "goal": {
+        "what": "Clear statement of what will be different by year-end",
+        "purpose": "The destination - specific, measurable, time-bound",
+        "analogy": "Your destination - where you'll be by December 31st"
+      },
+      "outcomes": {
+        "what": "2-3 measurable proof points with quarterly pacing",
+        "purpose": "Mile markers showing you're making progress",
+        "analogy": "Your mile markers - if you hit all of them, you must reach your destination"
+      }
+    },
+    "key_rules": [
+      "Maximum 3 WhyGos per entity (company/department/individual)",
+      "Maximum 3 outcomes per WhyGo",
+      "WHY must be 3 sentences or less",
+      "Outcomes must be measurable (numbers, percentages, dates, yes/no)",
+      "Department WhyGos must ladder to Company WhyGos",
+      "Individual WhyGos must ladder to Department WhyGos"
+    ],
+    "status_tracking": {
+      "on_pace": {"symbol": "[+]", "meaning": "≥100% of quarterly target"},
+      "slightly_off": {"symbol": "[~]", "meaning": "80-99% of quarterly target"},
+      "off_pace": {"symbol": "[-]", "meaning": "<80% of quarterly target"}
+    },
+    "why_it_matters_to_you": [
+      "Company Performance Bonus: When Kartel hits $7.1M at 40% margin, everyone gets 10% salary cash + 10% stock",
+      "Individual Discretionary Bonus: Based on your WhyGO achievement (typically 10-15% of salary)",
+      "Career Growth: WhyGOs create visibility for your impact and contributions",
+      "Clarity: You always know what matters most and how you're tracking"
+    },
+    "common_mistakes_to_avoid": [
+      "❌ Activities instead of outcomes ('Attend meetings' → ✅ 'NPS reaches 50+')",
+      "❌ Vague metrics ('Better quality' → ✅ '50% margin, 90% on-time')",
+      "❌ Too many goals (5-7 → ✅ Maximum 3)",
+      "❌ Goals that don't ladder up (orphan goals → ✅ Connected to department/company)",
+      "❌ Missing WHY context (just GOAL → ✅ WHY + GOAL + OUTCOMES)"
+    ],
+    "teach_it_back_prompt": "Imagine a new Kartel employee asks: 'What are WhyGos and why do we use them?' Explain it to them in 3-4 simple sentences.",
+    "example_answer": "WhyGo is our annual goal system that keeps everyone aligned on Kartel's top priorities. Instead of having 10 different goals, we're limited to 3 max, which forces us to focus on what matters most. Each WhyGo has three parts: WHY (strategic context), GOAL (what will be different by year-end), and OUTCOMES (2-3 measurable proof points with quarterly pacing). This system connects everyone's work to company success and ties directly to our bonuses."
+  }
+}
