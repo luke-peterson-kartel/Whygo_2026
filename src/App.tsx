@@ -11,7 +11,8 @@ import { Step4_UnderstandingChallenge } from '@/pages/philosophy/Step4_Understan
 import { Step5_TeachingSnapshot } from '@/pages/philosophy/Step5_TeachingSnapshot';
 import { CompanyView } from '@/pages/dashboards/CompanyView';
 import { AllGoalsView } from '@/pages/dashboards/AllGoalsView';
-import ProductionView from '@/pages/dashboards/departments/ProductionView';
+import { DepartmentView } from '@/pages/dashboards/DepartmentView';
+import { DEPARTMENT_CONFIGS } from '@/lib/departmentConfig';
 import { DevModeProvider } from '@/contexts/DevModeContext';
 
 export function App() {
@@ -59,22 +60,18 @@ export function App() {
 // Department router component
 function DepartmentRouter() {
   const { dept } = useParams<{ dept: string }>();
+  const config = dept ? DEPARTMENT_CONFIGS[dept.toLowerCase()] : null;
 
-  const departmentViews: Record<string, React.ComponentType> = {
-    production: ProductionView,
-    // sales: SalesView,          // Phase 4
-    // platform: PlatformView,    // Phase 4
-    // generative: GenerativeView, // Phase 4
-    // community: CommunityView,   // Phase 4
-  };
-
-  const DepartmentComponent = dept ? departmentViews[dept.toLowerCase()] : null;
-
-  if (!DepartmentComponent) {
+  if (!config) {
     return <PlaceholderPage title={`${dept ? dept.charAt(0).toUpperCase() + dept.slice(1) : 'Department'} Dashboard`} />;
   }
 
-  return <DepartmentComponent />;
+  return (
+    <DepartmentView
+      department={config.name}
+      customSections={config.customSections ? <config.customSections /> : undefined}
+    />
+  );
 }
 
 // Temporary placeholder component
