@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { LightbulbIcon, HelpCircleIcon, LayersIcon, TargetIcon, BookOpenIcon, ArrowRightIcon } from 'lucide-react';
+import { LightbulbIcon, HelpCircleIcon, LayersIcon, TargetIcon, BookOpenIcon, ArrowRightIcon, DollarSignIcon, TrendingUpIcon, RocketIcon } from 'lucide-react';
 
 const STEPS = [
   {
@@ -49,7 +49,7 @@ export function PhilosophyIndex() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-gray-900 mb-4">
             WhyGo Philosophy Module
           </h1>
@@ -59,6 +59,64 @@ export function PhilosophyIndex() {
           <div className="mt-6 inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium">
             <span>⏱️</span>
             <span>Estimated time: 15-20 minutes</span>
+          </div>
+        </div>
+
+        {/* Why Kartel Uses WhyGos */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-8 mb-12 text-white">
+          <h2 className="text-3xl font-bold text-center mb-2">Why Kartel Uses WhyGos</h2>
+          <p className="text-center text-blue-100 mb-8 text-lg">
+            Hit your WhyGos → Get compensated. Together, we position for acquisition.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Your Compensation */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+              <div className="flex justify-center mb-4">
+                <div className="p-3 bg-white/20 rounded-full">
+                  <DollarSignIcon className="w-8 h-8" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-center mb-3">Your Compensation</h3>
+              <p className="text-blue-50 text-center">
+                Your WhyGos are directly tied to your bonuses and equity. Hit your quarterly targets → compensation unlocks.
+              </p>
+            </div>
+
+            {/* Collective Success */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+              <div className="flex justify-center mb-4">
+                <div className="p-3 bg-white/20 rounded-full">
+                  <TrendingUpIcon className="w-8 h-8" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-center mb-3">Collective Success</h3>
+              <p className="text-blue-50 text-center">
+                When we all hit our WhyGos, Kartel achieves milestones investors want to see. Company valuation grows, your equity becomes more valuable.
+              </p>
+            </div>
+
+            {/* Position for Acquisition */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+              <div className="flex justify-center mb-4">
+                <div className="p-3 bg-white/20 rounded-full">
+                  <RocketIcon className="w-8 h-8" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-center mb-3">Position for Acquisition</h3>
+              <p className="text-blue-50 text-center">
+                Collectively hitting WhyGos positions us for acquisition in 18-24 months. Your outcomes prove product-market fit and operational excellence.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+            <p className="text-center text-lg font-medium mb-2">
+              The Simple Truth
+            </p>
+            <p className="text-blue-50 text-center">
+              Your outcomes aren't just about you getting compensated. They're the exact company milestones that drive valuation and create acquisition opportunity. When everyone executes, we all win.
+            </p>
           </div>
         </div>
 
