@@ -8,6 +8,7 @@ import FourHandoffCycle from '@/components/department/custom/production/FourHand
 import PodStructure from '@/components/department/custom/production/PodStructure';
 import ProgressIndicators from '@/components/department/custom/production/ProgressIndicators';
 import { WhyGOCard } from '@/components/whygo/WhyGOCard';
+import { LoadingState } from '@/components/ui/LoadingState';
 import { WhyGOWithOutcomes } from '@/types/whygo.types';
 import { getDepartmentQueryValue } from '@/lib/departmentUtils';
 
@@ -62,9 +63,7 @@ export default function ProductionView() {
   if (loading) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading Production WhyGOs...</div>
-        </div>
+        <LoadingState message="Loading Production WhyGOs..." minHeight="h-64" />
       </AppLayout>
     );
   }

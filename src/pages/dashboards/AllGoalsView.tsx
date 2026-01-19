@@ -5,6 +5,8 @@ import { StrategicContext } from '@/components/whygo/StrategicContext';
 import { DependenciesSection } from '@/components/dependencies/DependenciesSection';
 import { DepartmentSection } from '@/components/whygo/DepartmentSection';
 import { StatusLegend } from '@/components/whygo/StatusLegend';
+import { LoadingState } from '@/components/ui/LoadingState';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { getDepartmentColor } from '@/lib/departmentColors';
 import { useWhyGOs } from '@/hooks/useWhyGOs';
 
@@ -44,30 +46,8 @@ export function AllGoalsView() {
     return result;
   }, [whygos]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading all goals...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <p className="text-red-800">{error}</p>
-        <button
-          onClick={refetch}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
+  if (loading) return <LoadingState message="Loading all goals..." />;
+  if (error) return <ErrorState message={error} onRetry={refetch} />;
 
   const totalWhyGOs = Object.values(organizedByDept).reduce((sum, whygos) => sum + whygos.length, 0);
 
