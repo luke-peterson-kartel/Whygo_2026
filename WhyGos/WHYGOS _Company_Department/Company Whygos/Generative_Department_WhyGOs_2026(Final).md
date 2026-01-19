@@ -34,15 +34,15 @@ These WhyGOs ladder directly to Company WhyGOs #2 (Operational Excellence), #3 (
 
 # WhyGO #1: Role Definition & Scale Readiness
 
-| WHY
-Kartel scales by deploying complete pods to enterprise clients—not individual hires. Each pod needs a Workflow Engineer, AI Generalist, Preditor, and Data/LoRA specialist working in sync. The core capability is building custom workflows on custom-trained data, then outputting content at scale while feeding approved outputs back into training data to continuously improve accuracy. If roles aren't clearly defined and this cycle isn't documented, we can't replicate the team—and every new client engagement becomes a scramble instead of a deployment. Critically, we must also discover how many concurrent clients one Generative pod can handle before we need to scale to Pod 2. |
-| --- |
+WHY
 
-| GOAL
-Every Generative team role is documented with a written playbook that is reviewed and approved as onboarding-ready, with pod capacity load-tested through real or pro-bono projects by end of Q1, and maximum concurrent client capacity per pod discovered and documented by EOY. |
-| --- |
+Kartel scales by deploying complete pods to enterprise clients—not individual hires. Each pod needs a Workflow Engineer, AI Generalist, Preditor, and Data/LoRA specialist working in sync. The core capability is building custom workflows on custom-trained data, then outputting content at scale while feeding approved outputs back into training data to continuously improve accuracy. If roles aren't clearly defined and this cycle isn't documented, we can't replicate the team—and every new client engagement becomes a scramble instead of a deployment. Critically, we must also discover how many concurrent clients one Generative pod can handle before we need to scale to Pod 2.
 
-### OUTCOMES
+GOAL
+
+Every Generative team role is documented with a written playbook that is reviewed and approved as onboarding-ready, with pod capacity load-tested through real or pro-bono projects by end of Q1, and maximum concurrent client capacity per pod discovered and documented by EOY.
+
+OUTCOMES
 
 | Outcome | Q1 | Q2 | Q3 | Q4 | Owner |
 | --- | --- | --- | --- | --- | --- |
@@ -71,15 +71,15 @@ Discovery Question: How many concurrent clients can one Generative pod serve bef
 
 # WhyGO #2: Technical Excellence & R&D
 
-| WHY
-The AI landscape evolves faster than any other space. What's cutting-edge today is outdated in months. The Generative team must stay ahead of the curve—systematically evaluating new tools, models, and techniques—so every deliverable uses the best available technology. Our competitive advantage is solving the 70% Problem through custom workflows and custom-trained models. Maintaining accuracy requires robust QC processes that measure bulk run success rates and continuous model optimization through the feedback loop. |
-| --- |
+WHY
 
-| GOAL
-Maintain technical leadership through systematic R&D, robust QC processes measuring bulk output success rates, and LoRA evaluation standards that support the 70% → 100% accuracy promise. |
-| --- |
+The AI landscape evolves faster than any other space. What's cutting-edge today is outdated in months. The Generative team must stay ahead of the curve—systematically evaluating new tools, models, and techniques—so every deliverable uses the best available technology. Our competitive advantage is solving the 70% Problem through custom workflows and custom-trained models. Maintaining accuracy requires robust QC processes that measure bulk run success rates and continuous model optimization through the feedback loop.
 
-### OUTCOMES
+GOAL
+
+Maintain technical leadership through systematic R&D, robust QC processes measuring bulk output success rates, and LoRA evaluation standards that support the 70% → 100% accuracy promise.
+
+OUTCOMES
 
 | Outcome | Q1 | Q2 | Q3 | Q4 | Owner |
 | --- | --- | --- | --- | --- | --- |
@@ -104,15 +104,15 @@ When new tools/models emerge (e.g., 5 new image models released), Fill assigns o
 
 # WhyGO #3: Generative Platform Expansion & Adoption
 
-| WHY
-Kartel can't scale by adding headcount for every new client. The Generative Platform is how we multiply capacity. The Internal Enterprise Platform gives Generative and Production teams custom tools that accelerate their workflow. The Community Ecosystem Platform powers Daniel's Talent Engine—enabling generation credits, challenges, and the certification pipeline that attracts and retains talent. Kartel Labs is where the team builds vibe-coded internal tools that optimize their own jobs and prepare them to onboard Pod 2, compounding efficiency over time. |
-| --- |
+WHY
 
-| GOAL
-Expand the Generative Platform across three pillars—Internal Enterprise tools, Community Ecosystem infrastructure (with Niels), and Kartel Labs internal tool development—with monthly Demo Days and adoption across Generative, Production, and Community teams. |
-| --- |
+Kartel can't scale by adding headcount for every new client. The Generative Platform is how we multiply capacity. The Internal Enterprise Platform gives Generative and Production teams custom tools that accelerate their workflow. The Community Ecosystem Platform powers Daniel's Talent Engine—enabling generation credits, challenges, and the certification pipeline that attracts and retains talent. Kartel Labs is where the team builds vibe-coded internal tools that optimize their own jobs and prepare them to onboard Pod 2, compounding efficiency over time.
 
-### OUTCOMES
+GOAL
+
+Expand the Generative Platform across three pillars—Internal Enterprise tools, Community Ecosystem infrastructure (with Niels), and Kartel Labs internal tool development—with monthly Demo Days and adoption across Generative, Production, and Community teams.
+
+OUTCOMES
 
 | Outcome | Q1 | Q2 | Q3 | Q4 | Owner |
 | --- | --- | --- | --- | --- | --- |

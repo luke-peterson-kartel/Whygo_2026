@@ -1,9 +1,11 @@
-import { useAuth } from '@/hooks/useAuth';
+import { useDevMode } from '@/hooks/useDevMode';
 import { LogOut, Bell } from 'lucide-react';
 import { useState } from 'react';
+import { DepartmentSwitcher } from '@/components/dev/DepartmentSwitcher';
+import { getDepartmentDisplayName } from '@/lib/departmentUtils';
 
 export function Header() {
-  const { user, signOut } = useAuth();
+  const { user, signOut } = useDevMode();
   const [showNotifications, setShowNotifications] = useState(false);
 
   const handleSignOut = async () => {
@@ -22,11 +24,14 @@ export function Header() {
             Welcome back, {user?.name.split(' ')[0]}
           </h2>
           <p className="text-sm text-gray-500 mt-1">
-            {user?.department.charAt(0).toUpperCase() + user?.department.slice(1)} Department
+            {user?.department ? getDepartmentDisplayName(user.department) : ''} Department
           </p>
         </div>
 
         <div className="flex items-center gap-4">
+          {/* Dev Mode Switcher */}
+          <DepartmentSwitcher />
+
           {/* Notifications */}
           <button
             onClick={() => setShowNotifications(!showNotifications)}

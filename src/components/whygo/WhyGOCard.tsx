@@ -1,5 +1,6 @@
 import { WhyGOWithOutcomes } from '@/types/whygo.types';
 import { OutcomeRow } from './OutcomeRow';
+import { SupportingDepartmentGoals } from './SupportingDepartmentGoals';
 import { Target, User, Calendar } from 'lucide-react';
 
 interface WhyGOCardProps {
@@ -59,6 +60,13 @@ export function WhyGOCard({ whygo, number, showOwner = false }: WhyGOCardProps) 
           <p className="text-gray-800 leading-relaxed">{whygo.why}</p>
         </div>
       </div>
+
+      {/* Supporting Department Goals - Only for Company Level */}
+      {whygo.level === 'company' && (
+        <div className="p-6 border-b border-gray-200">
+          <SupportingDepartmentGoals companyGoal={whygo.goal} />
+        </div>
+      )}
 
       {/* Outcomes */}
       <div className="p-6">

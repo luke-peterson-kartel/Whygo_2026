@@ -65,8 +65,8 @@ export function CompanyView() {
       const goalOrder = [
         'Onboard 10 enterprise clients',
         'Establish operational infrastructure',
-        'Build Discord community',
-        'Deploy the three-pillar'
+        'Deploy the three-pillar',
+        'Build Discord community'
       ];
 
       loadedWhyGOs.sort((a, b) => {

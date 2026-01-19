@@ -9,10 +9,10 @@ import {
   TrendingUp,
   PlusCircle,
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useDevMode } from '@/hooks/useDevMode';
 
 export function Sidebar() {
-  const { user } = useAuth();
+  const { user } = useDevMode();
 
   const navigation = [
     { name: 'Home', href: '/', icon: Home },
