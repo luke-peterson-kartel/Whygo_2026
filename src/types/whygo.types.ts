@@ -31,18 +31,18 @@ export interface Outcome {
   id: string;
   whygoId: string;
   description: string;
-  annualTarget: number;
+  annualTarget: string | number;
   unit: string;
 
-  q1Target: number;
-  q2Target: number;
-  q3Target: number;
-  q4Target: number;
+  q1Target: string | number;
+  q2Target: string | number;
+  q3Target: string | number;
+  q4Target: string | number;
 
-  q1Actual: number | null;
-  q2Actual: number | null;
-  q3Actual: number | null;
-  q4Actual: number | null;
+  q1Actual: string | number | null;
+  q2Actual: string | number | null;
+  q3Actual: string | number | null;
+  q4Actual: string | number | null;
 
   q1Status: StatusIndicator;
   q2Status: StatusIndicator;

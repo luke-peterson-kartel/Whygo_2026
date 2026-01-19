@@ -9,6 +9,7 @@ import { Step2_ConfusionCheck } from '@/pages/philosophy/Step2_ConfusionCheck';
 import { Step3_RefinementCycles } from '@/pages/philosophy/Step3_RefinementCycles';
 import { Step4_UnderstandingChallenge } from '@/pages/philosophy/Step4_UnderstandingChallenge';
 import { Step5_TeachingSnapshot } from '@/pages/philosophy/Step5_TeachingSnapshot';
+import { CompanyView } from '@/pages/dashboards/CompanyView';
 
 export function App() {
   return (
@@ -28,8 +29,8 @@ export function App() {
             <Route path="/philosophy/step4" element={<Step4_UnderstandingChallenge />} />
             <Route path="/philosophy/step5" element={<Step5_TeachingSnapshot />} />
 
-            {/* Dashboard routes - placeholders */}
-            <Route path="/company" element={<PlaceholderPage title="Company Dashboard" />} />
+            {/* Dashboard routes */}
+            <Route path="/company" element={<CompanyView />} />
             <Route path="/department/:dept" element={<PlaceholderPage title="Department Dashboard" />} />
             <Route path="/my-goals" element={<PlaceholderPage title="My Goals" />} />
 
