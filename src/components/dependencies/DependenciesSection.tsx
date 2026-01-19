@@ -1,4 +1,4 @@
-import FourHandoffCycle from '@/components/department/custom/production/FourHandoffCycle';
+import { FourHandoffCycle } from '@/components/department/custom/production/FourHandoffCycle';
 import PodStructure from '@/components/department/custom/production/PodStructure';
 
 export function DependenciesSection() {
