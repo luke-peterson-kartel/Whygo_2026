@@ -8,14 +8,21 @@ import { StatusLegend } from '@/components/whygo/StatusLegend';
 import { getDepartmentColor } from '@/lib/departmentColors';
 import { useWhyGOs } from '@/hooks/useWhyGOs';
 
-interface OrganizedWhyGOs {
-  company: WhyGOWithOutcomes[];
-  sales: WhyGOWithOutcomes[];
-  production: WhyGOWithOutcomes[];
-  generative: WhyGOWithOutcomes[];
-  platform: WhyGOWithOutcomes[];
-  community: WhyGOWithOutcomes[];
+interface DepartmentConfig {
+  key: string;
+  name: string;
+  colorScheme: string;
+  defaultExpanded?: boolean;
 }
+
+const DEPARTMENT_CONFIGS: DepartmentConfig[] = [
+  { key: 'company', name: 'Company', colorScheme: 'from-blue-600 to-purple-600', defaultExpanded: true },
+  { key: 'sales', name: 'Sales', colorScheme: getDepartmentColor('Sales') },
+  { key: 'production', name: 'Production', colorScheme: getDepartmentColor('Production') },
+  { key: 'generative', name: 'Generative', colorScheme: getDepartmentColor('Generative') },
+  { key: 'platform', name: 'Platform', colorScheme: getDepartmentColor('Platform') },
+  { key: 'community', name: 'Community', colorScheme: getDepartmentColor('Community') },
+];
 
 export function AllGoalsView() {
   const { whygos, loading, error, refetch } = useWhyGOs({
@@ -25,15 +32,16 @@ export function AllGoalsView() {
   });
 
   // Organize WhyGOs by department
-  const organized = useMemo((): OrganizedWhyGOs => {
-    const company = whygos.filter(w => w.level === 'company');
-    const sales = whygos.filter(w => w.level === 'department' && w.department === 'Sales');
-    const production = whygos.filter(w => w.level === 'department' && w.department === 'Production');
-    const generative = whygos.filter(w => w.level === 'department' && w.department === 'Generative');
-    const platform = whygos.filter(w => w.level === 'department' && w.department === 'Platform');
-    const community = whygos.filter(w => w.level === 'department' && w.department === 'Community');
-
-    return { company, sales, production, generative, platform, community };
+  const organizedByDept = useMemo(() => {
+    const result: Record<string, WhyGOWithOutcomes[]> = {
+      company: whygos.filter(w => w.level === 'company'),
+      sales: whygos.filter(w => w.level === 'department' && w.department === 'Sales'),
+      production: whygos.filter(w => w.level === 'department' && w.department === 'Production'),
+      generative: whygos.filter(w => w.level === 'department' && w.department === 'Generative'),
+      platform: whygos.filter(w => w.level === 'department' && w.department === 'Platform'),
+      community: whygos.filter(w => w.level === 'department' && w.department === 'Community'),
+    };
+    return result;
   }, [whygos]);
 
   if (loading) {
@@ -61,8 +69,7 @@ export function AllGoalsView() {
     );
   }
 
-  const totalWhyGOs = organized.company.length + organized.sales.length + organized.production.length +
-                      organized.generative.length + organized.platform.length + organized.community.length;
+  const totalWhyGOs = Object.values(organizedByDept).reduce((sum, whygos) => sum + whygos.length, 0);
 
   return (
     <div>
@@ -98,60 +105,20 @@ export function AllGoalsView() {
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Company Section */}
-          {organized.company.length > 0 && (
-            <DepartmentSection
-              department="Company"
-              whygos={organized.company}
-              colorScheme="from-blue-600 to-purple-600"
-              defaultExpanded={true}
-            />
-          )}
+          {DEPARTMENT_CONFIGS.map(({ key, name, colorScheme, defaultExpanded }) => {
+            const deptWhyGOs = organizedByDept[key];
+            if (!deptWhyGOs || deptWhyGOs.length === 0) return null;
 
-          {/* Sales Section */}
-          {organized.sales.length > 0 && (
-            <DepartmentSection
-              department="Sales"
-              whygos={organized.sales}
-              colorScheme={getDepartmentColor('Sales')}
-            />
-          )}
-
-          {/* Production Section */}
-          {organized.production.length > 0 && (
-            <DepartmentSection
-              department="Production"
-              whygos={organized.production}
-              colorScheme={getDepartmentColor('Production')}
-            />
-          )}
-
-          {/* Generative Section */}
-          {organized.generative.length > 0 && (
-            <DepartmentSection
-              department="Generative"
-              whygos={organized.generative}
-              colorScheme={getDepartmentColor('Generative')}
-            />
-          )}
-
-          {/* Platform Section */}
-          {organized.platform.length > 0 && (
-            <DepartmentSection
-              department="Platform"
-              whygos={organized.platform}
-              colorScheme={getDepartmentColor('Platform')}
-            />
-          )}
-
-          {/* Community Section */}
-          {organized.community.length > 0 && (
-            <DepartmentSection
-              department="Community"
-              whygos={organized.community}
-              colorScheme={getDepartmentColor('Community')}
-            />
-          )}
+            return (
+              <DepartmentSection
+                key={key}
+                department={name}
+                whygos={deptWhyGOs}
+                colorScheme={colorScheme}
+                defaultExpanded={defaultExpanded}
+              />
+            );
+          })}
         </div>
       )}
 
