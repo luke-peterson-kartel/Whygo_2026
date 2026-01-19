@@ -10,6 +10,7 @@ import { Step3_RefinementCycles } from '@/pages/philosophy/Step3_RefinementCycle
 import { Step4_UnderstandingChallenge } from '@/pages/philosophy/Step4_UnderstandingChallenge';
 import { Step5_TeachingSnapshot } from '@/pages/philosophy/Step5_TeachingSnapshot';
 import { CompanyView } from '@/pages/dashboards/CompanyView';
+import { AllGoalsView } from '@/pages/dashboards/AllGoalsView';
 import ProductionView from '@/pages/dashboards/departments/ProductionView';
 import { DevModeProvider } from '@/contexts/DevModeContext';
 
@@ -37,8 +38,8 @@ export function App() {
             <Route path="/department/:dept" element={<DepartmentRouter />} />
             <Route path="/my-goals" element={<PlaceholderPage title="My Goals" />} />
 
-            {/* Goal routes - placeholders */}
-            <Route path="/goals" element={<PlaceholderPage title="All Goals" />} />
+            {/* Goal routes */}
+            <Route path="/goals" element={<AllGoalsView />} />
             <Route path="/goals/new" element={<PlaceholderPage title="Create Goal" />} />
             <Route path="/goals/:id" element={<PlaceholderPage title="Goal Detail" />} />
             <Route path="/goals/:id/edit" element={<PlaceholderPage title="Edit Goal" />} />
