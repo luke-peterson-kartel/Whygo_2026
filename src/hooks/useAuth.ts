@@ -100,5 +100,53 @@ export function useAuth() {
     }
   };
 
-  return { user, loading, error, signIn, signOut };
+  const devSignIn = async (email: string) => {
+    // Only allow dev sign-in in development mode
+    if (!isDevMode) {
+      throw new Error('Dev sign-in is only available in development mode');
+    }
+
+    try {
+      setError(null);
+      setLoading(true);
+
+      // Fetch employee document directly from Firestore
+      const employeeDoc = await getDoc(doc(db, 'employees', email));
+
+      if (employeeDoc.exists()) {
+        const employeeData = {
+          id: employeeDoc.id,
+          ...employeeDoc.data()
+        } as Employee;
+
+        // Create auth user with fake Firebase UID for dev mode
+        let finalUser: AuthUser = {
+          ...employeeData,
+          firebaseUid: `dev-${email}`,
+        };
+
+        // Apply dev mode level override if active
+        if (devLevelOverride) {
+          finalUser = {
+            ...finalUser,
+            level: devLevelOverride,
+          };
+          console.log(`[Dev Mode] Level override active: ${devLevelOverride} (original: ${employeeData.level})`);
+        }
+
+        setUser(finalUser);
+        console.log(`[Dev Mode] Signed in as: ${email}`);
+      } else {
+        throw new Error(`Employee not found: ${email}`);
+      }
+    } catch (err) {
+      console.error('Dev sign-in error:', err);
+      setError(err as Error);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { user, loading, error, signIn, signOut, devSignIn };
 }

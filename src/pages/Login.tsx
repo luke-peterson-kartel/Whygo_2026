@@ -1,10 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useEffect } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import { DevModeContext } from '@/contexts/DevModeContext';
+import { Code } from 'lucide-react';
 
 export function Login() {
-  const { user, loading, error, signIn } = useAuth();
+  const { user, loading, error, signIn, devSignIn } = useAuth();
+  const { isDevMode } = useContext(DevModeContext);
   const navigate = useNavigate();
+  const [devEmail, setDevEmail] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -15,6 +19,14 @@ export function Login() {
   const handleSignIn = async () => {
     try {
       await signIn();
+    } catch (err) {
+      // Error is handled in useAuth hook
+    }
+  };
+
+  const handleDevSignIn = async () => {
+    try {
+      await devSignIn(devEmail);
     } catch (err) {
       // Error is handled in useAuth hook
     }
@@ -64,6 +76,67 @@ export function Login() {
             </svg>
             {loading ? 'Signing in...' : 'Sign in with Google'}
           </button>
+
+          {/* Dev Mode Login */}
+          {isDevMode && (
+            <>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Dev Mode</span>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Code className="w-4 h-4 text-yellow-700" />
+                  <span className="text-sm font-semibold text-yellow-700 uppercase tracking-wide">
+                    Dev Login
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label htmlFor="devEmail" className="block text-xs font-medium text-gray-700 mb-1">
+                      Employee Email
+                    </label>
+                    <input
+                      id="devEmail"
+                      type="email"
+                      value={devEmail}
+                      onChange={(e) => setDevEmail(e.target.value)}
+                      placeholder="employee.name@kartel.ai"
+                      className="w-full text-sm px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && devEmail) {
+                          handleDevSignIn();
+                        }
+                      }}
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleDevSignIn}
+                    disabled={loading || !devEmail}
+                    className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-4 rounded transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
+                    {loading ? 'Signing in...' : 'Dev Login'}
+                  </button>
+
+                  <div className="text-xs text-gray-600 space-y-1">
+                    <p className="font-medium">Test Accounts:</p>
+                    <div className="space-y-0.5 ml-2">
+                      <p>• <button onClick={() => setDevEmail('emmet@kartel.ai')} className="text-blue-600 hover:underline">emmet@kartel.ai</button> (IC, Production)</p>
+                      <p>• <button onClick={() => setDevEmail('noah.shields@kartel.ai')} className="text-blue-600 hover:underline">noah.shields@kartel.ai</button> (IC, Production)</p>
+                      <p>• <button onClick={() => setDevEmail('kevin.reilly@kartel.ai')} className="text-blue-600 hover:underline">kevin.reilly@kartel.ai</button> (Executive)</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-500">
