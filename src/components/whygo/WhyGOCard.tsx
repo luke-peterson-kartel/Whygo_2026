@@ -87,8 +87,8 @@ export function WhyGOCard({ whygo, number, showOwner = false, refetch }: WhyGOCa
               <textarea
                 value={editedGoal}
                 onChange={(e) => setEditedGoal(e.target.value)}
-                className="w-full bg-white/20 text-white text-2xl font-bold rounded p-2 mb-3 placeholder-white/60"
-                rows={2}
+                className="w-full bg-white/20 text-white text-2xl font-bold rounded p-2 mb-3 placeholder-white/60 resize-none overflow-hidden"
+                rows={Math.max(2, Math.ceil(editedGoal.length / 50))}
                 placeholder="Enter goal statement..."
               />
             ) : (
@@ -152,8 +152,8 @@ export function WhyGOCard({ whygo, number, showOwner = false, refetch }: WhyGOCa
             <textarea
               value={editedWhy}
               onChange={(e) => setEditedWhy(e.target.value)}
-              className="flex-1 text-gray-800 leading-relaxed rounded p-2 border border-blue-300"
-              rows={4}
+              className="flex-1 text-gray-800 leading-relaxed rounded p-2 border border-blue-300 resize-none overflow-hidden"
+              rows={Math.max(4, Math.ceil(editedWhy.length / 80))}
               placeholder="Enter why statement..."
             />
           ) : (
