@@ -7,9 +7,10 @@ interface WhyGOCardProps {
   whygo: WhyGOWithOutcomes;
   number?: number;
   showOwner?: boolean;
+  refetch?: () => void;
 }
 
-export function WhyGOCard({ whygo, number, showOwner = false }: WhyGOCardProps) {
+export function WhyGOCard({ whygo, number, showOwner = false, refetch }: WhyGOCardProps) {
   return (
     <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
       {/* Header */}
@@ -81,6 +82,8 @@ export function WhyGOCard({ whygo, number, showOwner = false }: WhyGOCardProps) 
                 key={outcome.id}
                 outcome={outcome}
                 number={index + 1}
+                whygoId={whygo.id}
+                refetch={refetch || (() => {})}
               />
             ))}
           </div>

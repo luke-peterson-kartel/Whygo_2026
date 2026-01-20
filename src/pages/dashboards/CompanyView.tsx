@@ -54,6 +54,7 @@ export function CompanyView() {
               whygo={whygo}
               number={index + 1}
               showOwner={true}
+              refetch={refetch}
             />
           ))}
         </div>

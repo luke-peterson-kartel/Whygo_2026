@@ -55,6 +55,9 @@ export interface Outcome {
   sortOrder: number;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+
+  // Audit trail fields for progress updates
+  updatedBy?: string;     // User UID or email who last updated outcome
 }
 
 export interface ProgressUpdate {

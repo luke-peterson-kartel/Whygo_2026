@@ -74,6 +74,7 @@ export function DepartmentView({ department, customSections }: DepartmentViewPro
               whygo={whygo}
               number={index + 1}
               showOwner={true}
+              refetch={refetch}
             />
           ))}
         </div>
