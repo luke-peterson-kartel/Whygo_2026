@@ -7,7 +7,7 @@ interface RoleContextSectionProps {
 }
 
 export function RoleContextSection({ roleReference }: RoleContextSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <div className="border-b border-gray-200 pb-4">

@@ -8,7 +8,7 @@ interface DepartmentWhyGOsSectionProps {
 }
 
 export function DepartmentWhyGOsSection({ department }: DepartmentWhyGOsSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const { whygos, loading, error } = useWhyGOs({
     level: 'department',
     department,

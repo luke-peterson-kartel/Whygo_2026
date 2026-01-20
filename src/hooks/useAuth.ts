@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import {
   onAuthStateChanged,
   signInWithPopup,
@@ -11,71 +11,122 @@ import { DevModeContext } from '@/contexts/DevModeContext';
 import type { Employee } from '@/types/employee.types';
 import type { AuthUser } from '@/types/auth.types';
 
+const DEV_USER_STORAGE_KEY = 'devUser';
+
+/**
+ * Shared helper to fetch employee data from Firestore and create AuthUser
+ * Used by both Firebase authentication and dev mode sign-in
+ */
+async function fetchEmployeeAndCreateAuthUser(
+  email: string,
+  firebaseUid: string,
+  devLevelOverride: string | null,
+  isDevMode: boolean
+): Promise<AuthUser> {
+  const employeeDoc = await getDoc(doc(db, 'employees', email));
+
+  if (!employeeDoc.exists()) {
+    throw new Error(`Employee not found: ${email}`);
+  }
+
+  const employeeData = {
+    id: employeeDoc.id,
+    ...employeeDoc.data()
+  } as Employee;
+
+  // Create auth user
+  let finalUser: AuthUser = {
+    ...employeeData,
+    firebaseUid,
+  };
+
+  // Apply dev mode level override if active
+  if (isDevMode && devLevelOverride) {
+    finalUser = {
+      ...finalUser,
+      level: devLevelOverride,
+    };
+  }
+
+  return finalUser;
+}
+
 export function useAuth() {
   const { devLevelOverride, isDevMode } = useContext(DevModeContext);
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<AuthUser | null>(null);
+
+  // Initialize devUser from sessionStorage to persist across navigation
+  const [devUser, setDevUser] = useState<AuthUser | null>(() => {
+    if (!isDevMode) return null;
+    const stored = sessionStorage.getItem(DEV_USER_STORAGE_KEY);
+    if (!stored) return null;
+
+    try {
+      return JSON.parse(stored);
+    } catch (error) {
+      console.error('Failed to parse stored dev user, clearing sessionStorage');
+      sessionStorage.removeItem(DEV_USER_STORAGE_KEY);
+      return null;
+    }
+  });
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const isDevLoginActive = useRef(false);
+
+  // Return dev user if active, otherwise Firebase user
+  const user = devUser || firebaseUser;
+
+  // Sync devUser to sessionStorage
+  useEffect(() => {
+    if (!isDevMode) return;
+
+    if (devUser) {
+      sessionStorage.setItem(DEV_USER_STORAGE_KEY, JSON.stringify(devUser));
+    } else {
+      sessionStorage.removeItem(DEV_USER_STORAGE_KEY);
+    }
+  }, [devUser, isDevMode]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      try {
-        if (firebaseUser) {
-          // Clear dev login flag when Firebase auth succeeds
-          isDevLoginActive.current = false;
+    // Skip Firebase listener if dev user is active
+    if (devUser) {
+      setLoading(false);
+      return;
+    }
 
-          // Fetch employee document from Firestore using email as document ID
-          const userEmail = firebaseUser.email;
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser: FirebaseUser | null) => {
+      try {
+        if (fbUser) {
+          const userEmail = fbUser.email;
 
           if (!userEmail) {
             console.error('No email found for authenticated user');
-            setUser(null);
+            setFirebaseUser(null);
             setError(new Error('Authentication error. No email found.'));
             setLoading(false);
             return;
           }
 
-          const employeeDoc = await getDoc(doc(db, 'employees', userEmail));
-
-          if (employeeDoc.exists()) {
-            const employeeData = {
-              id: employeeDoc.id,
-              ...employeeDoc.data()
-            } as Employee;
-
-            // Apply dev mode level override if active
-            let finalUser: AuthUser = {
-              ...employeeData,
-              firebaseUid: firebaseUser.uid,
-            };
-
-            if (isDevMode && devLevelOverride) {
-              finalUser = {
-                ...finalUser,
-                level: devLevelOverride,
-              };
-              console.log(`[Dev Mode] Level override active: ${devLevelOverride} (original: ${employeeData.level})`);
-            }
-
-            setUser(finalUser);
-          } else {
-            // User authenticated but not in employees collection
-            console.error('User not found in employees collection:', userEmail);
-            setUser(null);
-            setError(new Error('User not authorized. Only @kartel.ai employees can access this app.'));
-          }
+          // Use shared helper to fetch employee and create AuthUser
+          const authUser = await fetchEmployeeAndCreateAuthUser(
+            userEmail,
+            fbUser.uid,
+            devLevelOverride,
+            isDevMode
+          );
+          setFirebaseUser(authUser);
         } else {
-          // Skip clearing user if dev login is active
-          if (!isDevLoginActive.current) {
-            setUser(null);
-            setError(null);
-          }
+          setFirebaseUser(null);
+          setError(null);
         }
       } catch (err) {
         console.error('Error fetching user data:', err);
-        setError(err as Error);
-        setUser(null);
+        if (err instanceof Error && err.message.includes('Employee not found')) {
+          setError(new Error('User not authorized. Only @kartel.ai employees can access this app.'));
+        } else {
+          setError(err as Error);
+        }
+        setFirebaseUser(null);
       } finally {
         setLoading(false);
       }
@@ -98,13 +149,30 @@ export function useAuth() {
   const signOut = async () => {
     try {
       setError(null);
-      // Clear dev login flag
-      isDevLoginActive.current = false;
-      await firebaseSignOut(auth);
-      setUser(null);
+      setLoading(true); // Set loading to prevent race conditions
+
+      // Store whether we have a dev user before clearing
+      const isDevUser = !!devUser;
+
+      // Clear dev user state and sessionStorage
+      setDevUser(null);
+      sessionStorage.removeItem(DEV_USER_STORAGE_KEY);
+
+      // Clear Firebase user
+      setFirebaseUser(null);
+
+      // Only call Firebase signOut if there's an actual Firebase session
+      // (devUser won't have a real Firebase session)
+      if (!isDevUser) {
+        await firebaseSignOut(auth);
+      }
+
+      // Set loading to false to trigger ProtectedRoute check
+      setLoading(false);
     } catch (err) {
       console.error('Sign out error:', err);
       setError(err as Error);
+      setLoading(false);
       throw err;
     }
   };
@@ -119,37 +187,15 @@ export function useAuth() {
       setError(null);
       setLoading(true);
 
-      // Fetch employee document directly from Firestore
-      const employeeDoc = await getDoc(doc(db, 'employees', email));
-
-      if (employeeDoc.exists()) {
-        const employeeData = {
-          id: employeeDoc.id,
-          ...employeeDoc.data()
-        } as Employee;
-
-        // Create auth user with fake Firebase UID for dev mode
-        let finalUser: AuthUser = {
-          ...employeeData,
-          firebaseUid: `dev-${email}`,
-        };
-
-        // Apply dev mode level override if active
-        if (devLevelOverride) {
-          finalUser = {
-            ...finalUser,
-            level: devLevelOverride,
-          };
-          console.log(`[Dev Mode] Level override active: ${devLevelOverride} (original: ${employeeData.level})`);
-        }
-
-        // Set flag to prevent onAuthStateChanged from clearing the user
-        isDevLoginActive.current = true;
-        setUser(finalUser);
-        console.log(`[Dev Mode] Signed in as: ${email}`);
-      } else {
-        throw new Error(`Employee not found: ${email}`);
-      }
+      // Use shared helper to fetch employee and create AuthUser
+      // Use fake Firebase UID for dev mode
+      const authUser = await fetchEmployeeAndCreateAuthUser(
+        email,
+        `dev-${email}`,
+        devLevelOverride,
+        isDevMode
+      );
+      setDevUser(authUser);
     } catch (err) {
       console.error('Dev sign-in error:', err);
       setError(err as Error);

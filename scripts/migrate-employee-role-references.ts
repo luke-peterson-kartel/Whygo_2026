@@ -8,11 +8,17 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import { initializeApp, cert, ServiceAccount } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
+// ES module __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 // Initialize Firebase Admin
-const serviceAccountPath = path.join(__dirname, '../serviceAccountKey.json');
+const serviceAccountPath = path.join(__dirname, '../firebase-service-account.json');
 const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8')) as ServiceAccount;
 
 initializeApp({
@@ -155,9 +161,14 @@ function extractListItems(section: string, header: string): string[] {
   for (const line of lines) {
     if (line.trim().startsWith('-')) {
       items.push(line.trim().substring(1).trim());
-    } else if (line.trim() === '' || line.trim().startsWith('**')) {
+    } else if (line.trim().startsWith('**')) {
+      // Stop when we hit the next header
+      break;
+    } else if (line.trim() === '' && items.length > 0) {
+      // Stop on empty line, but only after we've found at least one item
       break;
     }
+    // Skip empty lines before finding any items (continue to next line)
   }
 
   return items;

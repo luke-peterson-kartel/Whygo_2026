@@ -8,7 +8,7 @@ interface SuggestedKPIsSectionProps {
 }
 
 export function SuggestedKPIsSection({ roleReference }: SuggestedKPIsSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <div className="pb-4">
