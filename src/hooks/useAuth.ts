@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import {
   onAuthStateChanged,
   signInWithPopup,
@@ -16,11 +16,15 @@ export function useAuth() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const isDevLoginActive = useRef(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       try {
         if (firebaseUser) {
+          // Clear dev login flag when Firebase auth succeeds
+          isDevLoginActive.current = false;
+
           // Fetch employee document from Firestore using email as document ID
           const userEmail = firebaseUser.email;
 
@@ -62,8 +66,11 @@ export function useAuth() {
             setError(new Error('User not authorized. Only @kartel.ai employees can access this app.'));
           }
         } else {
-          setUser(null);
-          setError(null);
+          // Skip clearing user if dev login is active
+          if (!isDevLoginActive.current) {
+            setUser(null);
+            setError(null);
+          }
         }
       } catch (err) {
         console.error('Error fetching user data:', err);
@@ -91,6 +98,8 @@ export function useAuth() {
   const signOut = async () => {
     try {
       setError(null);
+      // Clear dev login flag
+      isDevLoginActive.current = false;
       await firebaseSignOut(auth);
       setUser(null);
     } catch (err) {
@@ -134,6 +143,8 @@ export function useAuth() {
           console.log(`[Dev Mode] Level override active: ${devLevelOverride} (original: ${employeeData.level})`);
         }
 
+        // Set flag to prevent onAuthStateChanged from clearing the user
+        isDevLoginActive.current = true;
         setUser(finalUser);
         console.log(`[Dev Mode] Signed in as: ${email}`);
       } else {
