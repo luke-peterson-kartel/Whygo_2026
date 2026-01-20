@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCreateWhyGO } from '@/hooks/useCreateWhyGO';
-import { WhyGOFormData, OutcomeFormData } from '@/lib/utils/validation';
+import { WhyGOFormData, OutcomeFormData, validateWhyGOForm } from '@/lib/utils/validation';
 import { PermissionService } from '@/lib/utils/permissions';
 import { FormSection } from './FormSection';
 import { LevelSelector } from './LevelSelector';
@@ -29,6 +29,7 @@ export function CompanyDeptWhyGOForm() {
 
   const [validationErrors, setValidationErrors] = useState<Array<{ field: string; message: string }>>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   // Check permissions for current level
   const hasPermission = user ? PermissionService.canCreateWhyGO(user as any, formData.level) : false;
@@ -64,25 +65,39 @@ export function CompanyDeptWhyGOForm() {
     setFormData({ ...formData, outcomes: newOutcomes });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmitClick = () => {
     if (!user) {
       setSubmitError('You must be logged in to create WhyGOs');
       return;
     }
 
+    // Validate first
     setValidationErrors([]);
     setSubmitError(null);
+
+    const errors = validateWhyGOForm(formData);
+
+    if (errors.length > 0) {
+      // Validation failed, show errors
+      setValidationErrors(errors);
+      setSubmitError('Please fix validation errors before submitting');
+    } else {
+      // Validation passed, show confirmation dialog
+      setShowConfirmDialog(true);
+    }
+  };
+
+  const handleConfirmSubmit = async () => {
+    if (!user) return;
 
     const result = await createWhyGO(formData, user as any);
 
     if (result.success) {
-      // Success! Redirect based on level
-      if (formData.level === 'company') {
-        navigate('/company');
-      } else if (formData.level === 'department') {
-        navigate(`/department/${formData.department}`);
-      }
+      setShowConfirmDialog(false);
+      // Success! Redirect to my goals page (user requested all goals redirect to /my-goals)
+      navigate('/my-goals');
     } else {
+      setShowConfirmDialog(false);
       if (result.validationErrors) {
         setValidationErrors(result.validationErrors);
       }
@@ -258,13 +273,44 @@ export function CompanyDeptWhyGOForm() {
 
         {/* Form Actions */}
         <FormActions
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmitClick}
           onCancel={() => navigate(-1)}
           submitLabel="Create WhyGO"
           loading={creating}
           disabled={creating || !hasPermission}
         />
       </div>
+
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Create WhyGO?
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to create this {formData.level} WhyGO? This will create your goal
+              with {formData.outcomes.length} outcome{formData.outcomes.length !== 1 ? 's' : ''}.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowConfirmDialog(false)}
+                className="px-4 py-2 text-gray-700 hover:text-gray-900 rounded-lg border border-gray-300 transition-colors"
+                disabled={creating}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmSubmit}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+                disabled={creating}
+              >
+                {creating ? 'Creating...' : 'Create WhyGO'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
