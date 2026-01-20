@@ -13,6 +13,7 @@ import { CompanyView } from '@/pages/dashboards/CompanyView';
 import { AllGoalsView } from '@/pages/dashboards/AllGoalsView';
 import { DepartmentView } from '@/pages/dashboards/DepartmentView';
 import { MyGoalsView } from '@/pages/dashboards/MyGoalsView';
+import { ManagementDashboard } from '@/pages/dashboards/ManagementDashboard';
 import { CreateGoalPage } from '@/pages/CreateGoalPage';
 import { DEPARTMENT_CONFIGS } from '@/lib/departmentConfig';
 import { DevModeProvider } from '@/contexts/DevModeContext';
@@ -38,6 +39,7 @@ export function App() {
 
             {/* Dashboard routes */}
             <Route path="/company" element={<CompanyView />} />
+            <Route path="/management" element={<ManagementDashboard />} />
             <Route path="/department/:dept" element={<DepartmentRouter />} />
             <Route path="/my-goals" element={<MyGoalsView />} />
 

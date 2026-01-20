@@ -121,6 +121,10 @@ export class PermissionService {
     return false;
   }
 
+  static canAccessManagementDashboard(user: Employee): boolean {
+    return user.level === 'executive' || user.level === 'department_head';
+  }
+
   static canViewEmployee(user: Employee, targetEmployee: Employee): boolean {
     // Everyone can view all employees
     return true;
