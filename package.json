@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "migrate:employees": "tsx scripts/migrate-employees.ts",
     "migrate:whygos": "tsx scripts/migrate-whygos.ts",
+    "migrate:role-references": "tsx scripts/migrate-employee-role-references.ts",
     "clear:whygos": "tsx scripts/clear-whygos.ts"
   },
   "devDependencies": {

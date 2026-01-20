@@ -12,6 +12,7 @@ import { Step5_TeachingSnapshot } from '@/pages/philosophy/Step5_TeachingSnapsho
 import { CompanyView } from '@/pages/dashboards/CompanyView';
 import { AllGoalsView } from '@/pages/dashboards/AllGoalsView';
 import { DepartmentView } from '@/pages/dashboards/DepartmentView';
+import { CreateGoalPage } from '@/pages/CreateGoalPage';
 import { DEPARTMENT_CONFIGS } from '@/lib/departmentConfig';
 import { DevModeProvider } from '@/contexts/DevModeContext';
 
@@ -41,7 +42,7 @@ export function App() {
 
             {/* Goal routes */}
             <Route path="/goals" element={<AllGoalsView />} />
-            <Route path="/goals/new" element={<PlaceholderPage title="Create Goal" />} />
+            <Route path="/goals/new" element={<CreateGoalPage />} />
             <Route path="/goals/:id" element={<PlaceholderPage title="Goal Detail" />} />
             <Route path="/goals/:id/edit" element={<PlaceholderPage title="Edit Goal" />} />
 
