@@ -13,6 +13,40 @@ interface OutcomeRowProps {
   refetch: () => void;
 }
 
+// Helper function to calculate year-to-date progress
+function calculateYTDProgress(outcome: Outcome) {
+  // Sum all non-null quarterly actuals
+  const actuals = [
+    outcome.q1Actual,
+    outcome.q2Actual,
+    outcome.q3Actual,
+    outcome.q4Actual
+  ].filter(val => val !== null);
+
+  if (actuals.length === 0) {
+    return { ytdActual: 0, percentage: 0, hasProgress: false };
+  }
+
+  // Convert to numbers and sum
+  const ytdActual = actuals.reduce((sum, val) => {
+    const numVal = typeof val === 'number' ? val : parseFloat(val as string);
+    return sum + (isNaN(numVal) ? 0 : numVal);
+  }, 0);
+
+  // Calculate percentage
+  const annualTarget = typeof outcome.annualTarget === 'number'
+    ? outcome.annualTarget
+    : parseFloat(outcome.annualTarget as string);
+
+  const percentage = annualTarget > 0 ? (ytdActual / annualTarget) * 100 : 0;
+
+  return {
+    ytdActual,
+    percentage: Math.round(percentage),
+    hasProgress: true
+  };
+}
+
 export function OutcomeRow({ outcome, number, whygoId, refetch }: OutcomeRowProps) {
   const { user } = useAuth();
   const { updateOutcome } = useUpdateOutcome();
@@ -20,6 +54,12 @@ export function OutcomeRow({ outcome, number, whygoId, refetch }: OutcomeRowProp
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Calculate YTD progress
+  const ytdProgress = calculateYTDProgress(outcome);
+
+  // Determine current status (most recent non-null)
+  const currentStatus = outcome.q4Status || outcome.q3Status || outcome.q2Status || outcome.q1Status;
 
   // Local state for edited values
   const [editedData, setEditedData] = useState<{
@@ -117,7 +157,25 @@ export function OutcomeRow({ outcome, number, whygoId, refetch }: OutcomeRowProp
             </div>
           </div>
           <div className="flex-1">
-            <p className="text-gray-900 font-medium mb-2">{outcome.description}</p>
+            <p className="text-gray-900 font-medium mb-1">{outcome.description}</p>
+
+            {/* Mini Progress Bar */}
+            {ytdProgress.hasProgress && (
+              <div className="mb-2">
+                <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full transition-all ${
+                      currentStatus === '+' ? 'bg-green-500' :
+                      currentStatus === '~' ? 'bg-yellow-500' :
+                      currentStatus === '-' ? 'bg-red-500' :
+                      'bg-blue-500'
+                    }`}
+                    style={{ width: `${Math.min(ytdProgress.percentage, 100)}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center gap-4 text-sm text-gray-600">
               <div className="flex items-center gap-1">
                 <User className="w-4 h-4" />
@@ -129,6 +187,17 @@ export function OutcomeRow({ outcome, number, whygoId, refetch }: OutcomeRowProp
                   {formatValue(outcome.annualTarget, outcome.unit)}
                 </span>
               </div>
+
+              {/* Progress Chip */}
+              {ytdProgress.hasProgress && (
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-500">Progress:</span>
+                  <ProgressChip
+                    percentage={ytdProgress.percentage}
+                    status={currentStatus}
+                  />
+                </div>
+              )}
             </div>
           </div>
           <div className="flex-shrink-0 ml-2">
@@ -263,4 +332,27 @@ function formatValue(value: string | number, unit: string): string {
     default:
       return value.toString();
   }
+}
+
+interface ProgressChipProps {
+  percentage: number;
+  status: StatusIndicator;
+}
+
+function ProgressChip({ percentage, status }: ProgressChipProps) {
+  const statusColors = {
+    '+': 'bg-green-100 text-green-800 border-green-300',
+    '~': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    '-': 'bg-red-100 text-red-800 border-red-300',
+    null: 'bg-gray-100 text-gray-600 border-gray-300',
+  };
+
+  const colorClass = statusColors[status as keyof typeof statusColors] || statusColors.null;
+
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full border ${colorClass}`}>
+      {percentage}%
+      {status && <span className="font-mono ml-0.5">[{status}]</span>}
+    </span>
+  );
 }
