@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import {
   onAuthStateChanged,
   signInWithPopup,
@@ -7,10 +7,12 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from '@/config/firebase';
+import { DevModeContext } from '@/contexts/DevModeContext';
 import type { Employee } from '@/types/employee.types';
 import type { AuthUser } from '@/types/auth.types';
 
 export function useAuth() {
+  const { devLevelOverride, isDevMode } = useContext(DevModeContext);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -38,10 +40,21 @@ export function useAuth() {
               ...employeeDoc.data()
             } as Employee;
 
-            setUser({
+            // Apply dev mode level override if active
+            let finalUser: AuthUser = {
               ...employeeData,
               firebaseUid: firebaseUser.uid,
-            });
+            };
+
+            if (isDevMode && devLevelOverride) {
+              finalUser = {
+                ...finalUser,
+                level: devLevelOverride,
+              };
+              console.log(`[Dev Mode] Level override active: ${devLevelOverride} (original: ${employeeData.level})`);
+            }
+
+            setUser(finalUser);
           } else {
             // User authenticated but not in employees collection
             console.error('User not found in employees collection:', userEmail);
@@ -62,7 +75,7 @@ export function useAuth() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [devLevelOverride, isDevMode]);
 
   const signIn = async () => {
     try {

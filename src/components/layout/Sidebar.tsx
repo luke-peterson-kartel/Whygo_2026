@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { useContext } from 'react';
 import {
   Home,
   BookOpen,
@@ -8,11 +9,16 @@ import {
   Target,
   TrendingUp,
   PlusCircle,
+  Code,
+  X,
 } from 'lucide-react';
 import { useDevMode } from '@/hooks/useDevMode';
+import { DevModeContext } from '@/contexts/DevModeContext';
+import type { EmployeeLevel } from '@/types/employee.types';
 
 export function Sidebar() {
   const { user } = useDevMode();
+  const { isDevMode, devLevelOverride, setDevLevelOverride, clearDevLevelOverride } = useContext(DevModeContext);
 
   const navigation = [
     { name: 'Home', href: '/', icon: Home },
@@ -90,6 +96,52 @@ export function Sidebar() {
           ))}
         </ul>
       </nav>
+
+      {/* Dev Mode Controls */}
+      {isDevMode && (
+        <div className="p-4 border-t border-gray-200 bg-yellow-50">
+          <div className="flex items-center gap-2 mb-2">
+            <Code className="w-4 h-4 text-yellow-700" />
+            <span className="text-xs font-semibold text-yellow-700 uppercase tracking-wide">Dev Mode</span>
+          </div>
+
+          <div className="space-y-2">
+            <div>
+              <label htmlFor="levelOverride" className="block text-xs font-medium text-gray-700 mb-1">
+                Level Override
+              </label>
+              <div className="flex gap-1">
+                <select
+                  id="levelOverride"
+                  value={devLevelOverride || ''}
+                  onChange={(e) => setDevLevelOverride(e.target.value as EmployeeLevel || null)}
+                  className="flex-1 text-xs px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-yellow-500"
+                >
+                  <option value="">No Override</option>
+                  <option value="executive">Executive</option>
+                  <option value="department_head">Department Head</option>
+                  <option value="manager">Manager</option>
+                  <option value="ic">IC</option>
+                </select>
+                {devLevelOverride && (
+                  <button
+                    onClick={clearDevLevelOverride}
+                    className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
+                    title="Clear override"
+                  >
+                    <X className="w-3 h-3 text-gray-600" />
+                  </button>
+                )}
+              </div>
+              {devLevelOverride && (
+                <p className="text-xs text-yellow-700 mt-1">
+                  Active: {devLevelOverride} {user && `(was ${user.level})`}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {user && (
         <div className="p-4 border-t border-gray-200">
