@@ -4,11 +4,12 @@ import { db } from '@/config/firebase';
 import { WhyGOWithOutcomes } from '@/types/whygo.types';
 
 export interface UseWhyGOsOptions {
-  level?: 'company' | 'department';
+  level?: 'company' | 'department' | 'individual';
   department?: string;
   year?: number;
   status?: string[];
   sortCompanyGoals?: boolean;
+  ownerId?: string;
 }
 
 export interface UseWhyGOsReturn {
@@ -31,7 +32,8 @@ export function useWhyGOs(options: UseWhyGOsOptions = {}): UseWhyGOsReturn {
     department,
     year = 2026,
     status = ['draft', 'active'],
-    sortCompanyGoals = true
+    sortCompanyGoals = true,
+    ownerId
   } = options;
 
   const [whygos, setWhygos] = useState<WhyGOWithOutcomes[]>([]);
@@ -58,6 +60,11 @@ export function useWhyGOs(options: UseWhyGOsOptions = {}): UseWhyGOsReturn {
       // Add department filter if specified
       if (department) {
         constraints.push(where('department', '==', department));
+      }
+
+      // Add owner filter if specified
+      if (ownerId) {
+        constraints.push(where('ownerId', '==', ownerId));
       }
 
       const q = query(whygosRef, ...constraints);
@@ -107,7 +114,7 @@ export function useWhyGOs(options: UseWhyGOsOptions = {}): UseWhyGOsReturn {
 
   useEffect(() => {
     loadWhyGOs();
-  }, [level, department, year, JSON.stringify(status)]);
+  }, [level, department, year, JSON.stringify(status), ownerId]);
 
   return {
     whygos,

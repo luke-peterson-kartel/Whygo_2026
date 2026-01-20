@@ -31,13 +31,22 @@ export class PermissionService {
     // Executives can edit anything
     if (user.level === 'executive') return true;
 
+    // Department heads can edit their department's individual WhyGOs
+    if (
+      user.level === 'department_head' &&
+      whygo.level === 'individual' &&
+      whygo.department === user.department
+    ) {
+      return true;
+    }
+
     // Approved WhyGOs can't be edited by owner (only managers+)
     if (whygo.approvedBy !== null && whygo.ownerId === user.id) {
       return false;
     }
 
-    // Owner can edit their own draft
-    if (whygo.ownerId === user.id && whygo.approvedBy === null) {
+    // Owner can edit their own WhyGO
+    if (whygo.ownerId === user.id) {
       return true;
     }
 
@@ -94,14 +103,20 @@ export class PermissionService {
   }
 
   static canDeleteWhyGO(user: Employee, whygo: WhyGO): boolean {
-    // Only drafts can be deleted
-    if (whygo.status !== 'draft') return false;
-
-    // Owner can delete their own drafts
-    if (whygo.ownerId === user.id) return true;
-
-    // Executives can delete any draft
+    // Executives can delete anything
     if (user.level === 'executive') return true;
+
+    // Department heads can delete their department's individual WhyGOs
+    if (
+      user.level === 'department_head' &&
+      whygo.level === 'individual' &&
+      whygo.department === user.department
+    ) {
+      return true;
+    }
+
+    // Owner can delete their own WhyGO
+    if (whygo.ownerId === user.id) return true;
 
     return false;
   }

@@ -1,7 +1,12 @@
+import { useState } from 'react';
 import { WhyGOWithOutcomes } from '@/types/whygo.types';
 import { OutcomeRow } from './OutcomeRow';
 import { SupportingDepartmentGoals } from './SupportingDepartmentGoals';
-import { Target, User, Calendar } from 'lucide-react';
+import { Target, User, Calendar, Edit2, Trash2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useUpdateWhyGO } from '@/hooks/useUpdateWhyGO';
+import { useDeleteWhyGO } from '@/hooks/useDeleteWhyGO';
+import { PermissionService } from '@/lib/utils/permissions';
 
 interface WhyGOCardProps {
   whygo: WhyGOWithOutcomes;
@@ -11,6 +16,61 @@ interface WhyGOCardProps {
 }
 
 export function WhyGOCard({ whygo, number, showOwner = false, refetch }: WhyGOCardProps) {
+  const { user } = useAuth();
+  const { updateWhyGO, updating } = useUpdateWhyGO();
+  const { deleteWhyGO, deleting } = useDeleteWhyGO();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedGoal, setEditedGoal] = useState(whygo.goal);
+  const [editedWhy, setEditedWhy] = useState(whygo.why);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const canEdit = user && PermissionService.canEditWhyGO(user as any, whygo);
+  const canDelete = user && PermissionService.canDeleteWhyGO(user as any, whygo);
+
+  const handleEdit = () => {
+    setEditedGoal(whygo.goal);
+    setEditedWhy(whygo.why);
+    setIsEditing(true);
+  };
+
+  const handleSave = async () => {
+    if (!user) return;
+
+    const result = await updateWhyGO(
+      whygo,
+      { goal: editedGoal, why: editedWhy },
+      user
+    );
+
+    if (result.success) {
+      setIsEditing(false);
+      if (refetch) refetch();
+    } else {
+      alert(result.error || 'Failed to update WhyGO');
+    }
+  };
+
+  const handleCancel = () => {
+    setEditedGoal(whygo.goal);
+    setEditedWhy(whygo.why);
+    setIsEditing(false);
+  };
+
+  const handleDelete = async () => {
+    if (!user) return;
+
+    const result = await deleteWhyGO(whygo, user);
+
+    if (result.success) {
+      if (refetch) refetch();
+    } else {
+      alert(result.error || 'Failed to delete WhyGO');
+    }
+
+    setShowDeleteConfirm(false);
+  };
+
   return (
     <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
       {/* Header */}
@@ -23,7 +83,17 @@ export function WhyGOCard({ whygo, number, showOwner = false, refetch }: WhyGOCa
                 <span>WhyGO #{number}</span>
               </div>
             )}
-            <h3 className="text-2xl font-bold mb-3">{whygo.goal}</h3>
+            {isEditing ? (
+              <textarea
+                value={editedGoal}
+                onChange={(e) => setEditedGoal(e.target.value)}
+                className="w-full bg-white/20 text-white text-2xl font-bold rounded p-2 mb-3 placeholder-white/60"
+                rows={2}
+                placeholder="Enter goal statement..."
+              />
+            ) : (
+              <h3 className="text-2xl font-bold mb-3">{whygo.goal}</h3>
+            )}
 
             <div className="flex flex-wrap items-center gap-4 text-sm text-blue-100">
               {showOwner && (
@@ -44,8 +114,28 @@ export function WhyGOCard({ whygo, number, showOwner = false, refetch }: WhyGOCa
             </div>
           </div>
 
-          <div className="ml-4">
+          <div className="ml-4 flex items-center gap-2">
             <StatusBadge status={whygo.status} />
+
+            {canEdit && !isEditing && (
+              <button
+                onClick={handleEdit}
+                className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                title="Edit Goal and Why"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
+            )}
+
+            {canDelete && !isEditing && (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg transition-colors"
+                title="Delete WhyGO"
+              >
+                <Trash2 className="w-4 h-4 text-white" />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -58,9 +148,39 @@ export function WhyGOCard({ whygo, number, showOwner = false, refetch }: WhyGOCa
               WHY
             </div>
           </div>
-          <p className="text-gray-800 leading-relaxed">{whygo.why}</p>
+          {isEditing ? (
+            <textarea
+              value={editedWhy}
+              onChange={(e) => setEditedWhy(e.target.value)}
+              className="flex-1 text-gray-800 leading-relaxed rounded p-2 border border-blue-300"
+              rows={4}
+              placeholder="Enter why statement..."
+            />
+          ) : (
+            <p className="text-gray-800 leading-relaxed">{whygo.why}</p>
+          )}
         </div>
       </div>
+
+      {/* Save/Cancel buttons when editing */}
+      {isEditing && (
+        <div className="p-6 border-b border-gray-200 bg-gray-50 flex gap-3 justify-end">
+          <button
+            onClick={handleCancel}
+            className="px-4 py-2 text-gray-700 hover:text-gray-900 rounded-lg border border-gray-300 hover:border-gray-400 transition-colors"
+            disabled={updating}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+            disabled={updating}
+          >
+            {updating ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
+      )}
 
       {/* Supporting Department Goals - Only for Company Level */}
       {whygo.level === 'company' && (
@@ -89,6 +209,38 @@ export function WhyGOCard({ whygo, number, showOwner = false, refetch }: WhyGOCa
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Delete WhyGO?
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this WhyGO? This will permanently remove
+              the goal, why statement, and all {whygo.outcomes.length} outcome(s).
+              This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 text-gray-700 hover:text-gray-900 rounded-lg border border-gray-300 transition-colors"
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 transition-colors"
+                disabled={deleting}
+              >
+                {deleting ? 'Deleting...' : 'Delete WhyGO'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
