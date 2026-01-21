@@ -18,7 +18,7 @@ interface DepartmentConfig {
 }
 
 const DEPARTMENT_CONFIGS: DepartmentConfig[] = [
-  { key: 'company', name: 'Company', colorScheme: 'from-blue-600 to-purple-600', defaultExpanded: true },
+  { key: 'company', name: 'Company', colorScheme: 'from-blue-600 to-purple-600', defaultExpanded: false },
   { key: 'sales', name: 'Sales', colorScheme: getDepartmentColor('Sales') },
   { key: 'production', name: 'Production', colorScheme: getDepartmentColor('Production') },
   { key: 'generative', name: 'Generative', colorScheme: getDepartmentColor('Generative') },

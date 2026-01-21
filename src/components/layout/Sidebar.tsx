@@ -77,6 +77,7 @@ export function Sidebar() {
                       <li key={subItem.name}>
                         <NavLink
                           to={subItem.href}
+                          end
                           className={({ isActive }) =>
                             `flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
                               isActive
@@ -117,8 +118,8 @@ export function Sidebar() {
         </ul>
       </nav>
 
-      {/* Dev Mode Controls */}
-      {isDevMode && (
+      {/* Dev Mode Controls - Hidden per user request */}
+      {/* {isDevMode && (
         <div className="p-4 border-t border-gray-200 bg-yellow-50">
           <div className="flex items-center gap-2 mb-2">
             <Code className="w-4 h-4 text-yellow-700" />
@@ -161,7 +162,7 @@ export function Sidebar() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {user && (
         <div className="p-4 border-t border-gray-200">

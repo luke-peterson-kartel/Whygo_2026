@@ -99,6 +99,16 @@ function normalizeLevel(level: string): 'executive' | 'department_head' | 'manag
   return 'ic';
 }
 
+/**
+ * Normalize department name to match WhyGO capitalization
+ */
+function normalizeDepartment(department: string): string {
+  const normalized = department.toLowerCase().trim();
+
+  // Capitalize first letter to match WhyGO CSV format
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+}
+
 async function migrateEmployeesFromCSV() {
   try {
     console.log('🚀 Starting employee migration from CSV...\n');
@@ -130,7 +140,7 @@ async function migrateEmployeesFromCSV() {
         name: row.Name,
         email: email,
         title: row.Title,
-        department: row.Department,
+        department: normalizeDepartment(row.Department),
         reportsTo: row['Reports To'] || null,
         level: normalizeLevel(row.Level),
         employmentType: 'Full-time', // Default value
@@ -146,7 +156,7 @@ async function migrateEmployeesFromCSV() {
       const roleReferenceData = {
         id: email,
         title: row.Title,
-        department: row.Department,
+        department: normalizeDepartment(row.Department),
         reportsTo: row['Reports To'] || null,
         whygoAlignment: row['WhyGO Alignment']
           ? row['WhyGO Alignment'].split(',').map(s => s.trim())
