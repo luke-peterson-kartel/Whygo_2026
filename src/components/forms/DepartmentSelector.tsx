@@ -7,11 +7,10 @@ interface DepartmentSelectorProps {
 
 const DEPARTMENTS = [
   'Sales',
-  'Marketing',
   'Production',
-  'Customer Success',
-  'Finance',
-  'Operations',
+  'Generative',
+  'Platform',
+  'Community',
 ];
 
 export function DepartmentSelector({
