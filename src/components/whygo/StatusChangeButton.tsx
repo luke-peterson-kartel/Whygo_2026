@@ -65,26 +65,22 @@ export function StatusChangeButton({
   };
 
   // Define available status transitions based on current status
+  // NOTE: Complete and Archive features are hidden until end of year
   const getAvailableTransitions = () => {
     switch (currentStatus) {
       case 'draft':
         return [
           { status: 'active' as WhyGOStatus, label: 'Activate', icon: CheckCircle, color: 'green' },
-          { status: 'archived' as WhyGOStatus, label: 'Archive', icon: Archive, color: 'purple' },
         ];
       case 'active':
-        return [
-          { status: 'completed' as WhyGOStatus, label: 'Complete', icon: CheckCircle, color: 'blue' },
-          { status: 'archived' as WhyGOStatus, label: 'Archive', icon: Archive, color: 'purple' },
-        ];
+        // No transitions available for active WhyGOs (Complete/Archive hidden until EOY)
+        return [];
       case 'completed':
-        return [
-          { status: 'archived' as WhyGOStatus, label: 'Archive', icon: Archive, color: 'purple' },
-        ];
+        // No transitions available (shouldn't happen until EOY)
+        return [];
       case 'archived':
-        return [
-          { status: 'active' as WhyGOStatus, label: 'Reactivate', icon: CheckCircle, color: 'green' },
-        ];
+        // No transitions available (shouldn't happen until EOY)
+        return [];
       default:
         return [];
     }
