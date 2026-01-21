@@ -9,6 +9,7 @@ interface UpdateStatusOptions {
   whygoId: string;
   newStatus: WhyGOStatus;
   whygoLevel: 'company' | 'department' | 'individual';
+  whygoDepartment?: string | null;
 }
 
 export function useUpdateWhyGOStatus() {
@@ -16,15 +17,24 @@ export function useUpdateWhyGOStatus() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const updateStatus = async ({ whygoId, newStatus, whygoLevel }: UpdateStatusOptions) => {
+  const updateStatus = async ({ whygoId, newStatus, whygoLevel, whygoDepartment }: UpdateStatusOptions) => {
     if (!user) {
       setError('You must be logged in to update WhyGO status');
       return { success: false };
     }
 
-    // Permission check: Only executives can change status
-    if (user.level !== 'executive') {
-      setError('Only executives can change WhyGO status');
+    // Permission check:
+    // - Executives can change status for ALL WhyGOs
+    // - Department heads can change status for their own department's WhyGOs
+    const isExecutive = user.level === 'executive';
+    const isDepartmentHead = user.level === 'department_head';
+    const isOwnDepartment = isDepartmentHead && whygoLevel === 'department' && user.department === whygoDepartment;
+
+    if (!isExecutive && !isOwnDepartment) {
+      setError(isDepartmentHead
+        ? 'Department heads can only change status for their own department\'s WhyGOs'
+        : 'Only executives and department heads can change WhyGO status'
+      );
       return { success: false };
     }
 

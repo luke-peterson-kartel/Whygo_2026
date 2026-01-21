@@ -211,18 +211,23 @@ export function WhyGOCard({ whygo, number, showOwner = false, refetch }: WhyGOCa
         )}
       </div>
 
-      {/* Status Change Controls - Only for Executives */}
-      {user && user.level === 'executive' && !isEditing && (
+      {/* Status Change Controls - Executives and Department Heads */}
+      {user && (user.level === 'executive' || (user.level === 'department_head' && whygo.level === 'department' && whygo.department === user.department)) && !isEditing && (
         <div className="px-6 pb-6 border-t border-gray-200 pt-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-semibold text-gray-700 mb-1">Change Status</p>
-              <p className="text-xs text-gray-500">Only executives can modify WhyGO status</p>
+              <p className="text-xs text-gray-500">
+                {user.level === 'executive'
+                  ? 'Executives can modify any WhyGO status'
+                  : 'Department heads can modify their department WhyGO status'}
+              </p>
             </div>
             <StatusChangeButton
               whygoId={whygo.id}
               currentStatus={whygo.status}
               whygoLevel={whygo.level}
+              whygoDepartment={whygo.department}
               onStatusChanged={refetch}
             />
           </div>

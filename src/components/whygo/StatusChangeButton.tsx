@@ -8,6 +8,7 @@ interface StatusChangeButtonProps {
   whygoId: string;
   currentStatus: WhyGOStatus;
   whygoLevel: 'company' | 'department' | 'individual';
+  whygoDepartment?: string | null;
   onStatusChanged?: () => void;
 }
 
@@ -15,6 +16,7 @@ export function StatusChangeButton({
   whygoId,
   currentStatus,
   whygoLevel,
+  whygoDepartment,
   onStatusChanged,
 }: StatusChangeButtonProps) {
   const { user } = useDevMode();
@@ -22,8 +24,16 @@ export function StatusChangeButton({
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<WhyGOStatus | null>(null);
 
-  // Only executives can change status
-  if (!user || user.level !== 'executive') {
+  // Permission check:
+  // - Executives can change status for ALL WhyGOs
+  // - Department heads can change status for their own department's WhyGOs
+  if (!user) return null;
+
+  const isExecutive = user.level === 'executive';
+  const isDepartmentHead = user.level === 'department_head';
+  const isOwnDepartment = isDepartmentHead && whygoLevel === 'department' && user.department === whygoDepartment;
+
+  if (!isExecutive && !isOwnDepartment) {
     return null;
   }
 
@@ -39,6 +49,7 @@ export function StatusChangeButton({
       whygoId,
       newStatus: selectedStatus,
       whygoLevel,
+      whygoDepartment,
     });
 
     if (result.success) {
