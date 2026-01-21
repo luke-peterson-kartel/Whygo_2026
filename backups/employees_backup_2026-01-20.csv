@@ -1,0 +1,45 @@
+Name,Email,Title,Department,Reports To,Level,Employment Type,Location
+Daniel Kalotov,daniel.kalotov@kartel.ai,"SVP, Head of Community & Partnerships",community,luke.peterson@kartel.ai,department_head,W2,On-Site
+Daniel Kalotov,daniel@kartel.ai,"SVP, Head of Community & Partnerships",community,luke.peterson@kartel.ai,department_head,W2,On-Site
+Fill Isgro,fill.isgro@kartel.ai,"SVP, Head of Generative Engineering",generative,luke.peterson@kartel.ai,department_head,W2,On-Site
+Fill Isgro,fill@kartel.ai,"SVP, Head of Generative Engineering",generative,luke.peterson@kartel.ai,department_head,W2,On-Site
+Ahmed Yakout,ahmed.yakout@kartel.ai,Workflow Engineer - Real Estate,generative,fill.isgro@kartel.ai,ic,Trial,Remote
+Ahmed Yakout,ahmed@kartel.ai,Workflow Engineer - Real Estate,generative,fill.isgro@kartel.ai,ic,Trial,Remote
+Brandon Valedez,brandon.valedez@kartel.ai,Data Training / LoRA Models,generative,fill.isgro@kartel.ai,ic,Trial,Remote
+Brandon Valedez,brandon@kartel.ai,Data Training / LoRA Models,generative,fill.isgro@kartel.ai,ic,Trial,Remote
+Elliot Quartz,elliot.quartz@kartel.ai,AI Generalist,generative,fill.isgro@kartel.ai,ic,Trial,Remote
+Elliot Quartz,elliot@kartel.ai,AI Generalist,generative,fill.isgro@kartel.ai,ic,Trial,Remote
+Marc Donhue,marc.donhue@kartel.ai,Preditor,generative,fill.isgro@kartel.ai,ic,Trial,Remote
+Marc Donhue,marc@kartel.ai,Preditor,generative,fill.isgro@kartel.ai,ic,Trial,Remote
+Sean Geisterfer,sean.geisterfer@kartel.ai,Data Engineering,generative,fill.isgro@kartel.ai,ic,Trial,On-Site
+Sean Geisterfer,sean@kartel.ai,Data Engineering,generative,fill.isgro@kartel.ai,ic,Trial,On-Site
+Trent Hunter,trent.hunter@kartel.ai,Workflow Engineer,generative,fill.isgro@kartel.ai,ic,Trial,Remote
+Trent Hunter,trent@kartel.ai,Workflow Engineer,generative,fill.isgro@kartel.ai,ic,Trial,Remote
+Jerry Bellman,jerry.bellman@kartel.ai,CFO (Part-Time),management,kevin.reilly@kartel.ai,executive,Trial,Remote
+Jerry Bellman,jerry@kartel.ai,CFO (Part-Time),management,kevin.reilly@kartel.ai,executive,Trial,Remote
+Kevin Reilly,kevin.reilly@kartel.ai,CEO,management,N/A,executive,W2,On-Site
+Kevin Reilly,kevin@kartel.ai,CEO,management,N/A,executive,W2,On-Site
+Luke Peterson,luke.peterson@kartel.ai,President & Co-Founder,management,N/A,executive,W2,On-Site
+Luke Peterson,luke@kartel.ai,President & Co-Founder,management,N/A,executive,W2,On-Site
+Niels Hoffmann,niels.hoffmann@kartel.ai,CTO,platform,luke.peterson@kartel.ai,department_head,International,International
+Niels Hoffmann,niels@kartel.ai,CTO,platform,luke.peterson@kartel.ai,department_head,International,International
+Lukas Motiejunas,lukas.motiejunas@kartel.ai,Full Stack Developer,platform,niels.hoffmann@kartel.ai,ic,International,International
+Lukas Motiejunas,lukas@kartel.ai,Full Stack Developer,platform,niels.hoffmann@kartel.ai,ic,International,International
+Matthias Thoemmes,matthias.thoemmes@kartel.ai,Full Stack Developer,platform,niels.hoffmann@kartel.ai,ic,International,International
+Matthias Thoemmes,matthias@kartel.ai,Full Stack Developer,platform,niels.hoffmann@kartel.ai,ic,International,International
+Zac Bagley,zac.bagley@kartel.ai,Backend Engineer,platform,niels.hoffmann@kartel.ai,ic,Trial,Remote
+Zac Bagley,zac@kartel.ai,Backend Engineer,platform,niels.hoffmann@kartel.ai,ic,Trial,Remote
+Wayan Palmieri,wayan.palmieri@kartel.ai,"SVP, Head of Production",production,luke.peterson@kartel.ai,department_head,Contractor,On-Site
+Wayan Palmieri,wayan@kartel.ai,"SVP, Head of Production",production,luke.peterson@kartel.ai,department_head,Contractor,On-Site
+Jason Goldwatch,jason.goldwatch@kartel.ai,Director,production,wayan.palmieri@kartel.ai,manager,Contractor,On-Site
+Jason Goldwatch,jason@kartel.ai,Director,production,wayan.palmieri@kartel.ai,manager,Contractor,On-Site
+Veronica Diaz,veronica.diaz@kartel.ai,Production Manager,production,wayan.palmieri@kartel.ai,manager,Trial,On-Site
+Veronica Diaz,veronica@kartel.ai,Production Manager,production,wayan.palmieri@kartel.ai,manager,Trial,On-Site
+Estefania Guarderas,estefania.guarderas@kartel.ai,Producer,production,wayan.palmieri@kartel.ai,ic,W2,Remote
+Estefania Guarderas,estefania@kartel.ai,Producer,production,wayan.palmieri@kartel.ai,ic,W2,Remote
+Noah Shields,noah.shields@kartel.ai,Associate Producer,production,veronica.diaz@kartel.ai,ic,W2,On-Site
+Noah Shields,noah@kartel.ai,Associate Producer,production,veronica.diaz@kartel.ai,ic,W2,On-Site
+Ben Kusin,ben.kusin@kartel.ai,CRO & Co-Founder,sales,kevin.reilly@kartel.ai,department_head,W2,On-Site
+Ben Kusin,ben@kartel.ai,CRO & Co-Founder,sales,kevin.reilly@kartel.ai,department_head,W2,On-Site
+Emmet Reilly,emmet.reilly@kartel.ai,Director of Customer Success,sales,ben.kusin@kartel.ai,manager,W2,Remote
+Emmet Reilly,emmet@kartel.ai,Director of Customer Success,sales,ben.kusin@kartel.ai,manager,W2,Remote

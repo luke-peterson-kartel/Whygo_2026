@@ -1,30 +1,28 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
-import * as dotenv from 'dotenv';
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import * as fs from 'fs';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
 
-// Load environment variables
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const firebaseConfig = {
-  apiKey: process.env.VITE_FIREBASE_API_KEY,
-  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.VITE_FIREBASE_APP_ID,
-};
+// Initialize Firebase Admin
+const serviceAccount = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../firebase-service-account.json'), 'utf8')
+);
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig, {
-  name: 'whygo-clear-script'
+initializeApp({
+  credential: cert(serviceAccount),
 });
-const db = getFirestore(app);
+
+const db = getFirestore();
 
 async function clearWhyGOs() {
   console.log('🗑️  Deleting all WhyGOs from Firestore...\n');
 
-  const whygosRef = collection(db, 'whygos');
-  const snapshot = await getDocs(whygosRef);
+  const whygosRef = db.collection('whygos');
+  const snapshot = await whygosRef.get();
 
   console.log(`   Found ${snapshot.size} WhyGOs to delete`);
 
@@ -33,16 +31,16 @@ async function clearWhyGOs() {
 
   for (const whygoDoc of snapshot.docs) {
     // Delete outcomes subcollection first
-    const outcomesRef = collection(db, 'whygos', whygoDoc.id, 'outcomes');
-    const outcomesSnapshot = await getDocs(outcomesRef);
+    const outcomesRef = whygoDoc.ref.collection('outcomes');
+    const outcomesSnapshot = await outcomesRef.get();
 
     for (const outcomeDoc of outcomesSnapshot.docs) {
-      await deleteDoc(doc(db, 'whygos', whygoDoc.id, 'outcomes', outcomeDoc.id));
+      await outcomeDoc.ref.delete();
       deletedOutcomes++;
     }
 
     // Delete WhyGO document
-    await deleteDoc(doc(db, 'whygos', whygoDoc.id));
+    await whygoDoc.ref.delete();
     deletedWhyGOs++;
 
     if (deletedWhyGOs % 5 === 0) {

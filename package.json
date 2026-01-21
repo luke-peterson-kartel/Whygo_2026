@@ -10,7 +10,14 @@
     "migrate:employees": "tsx scripts/migrate-employees.ts",
     "migrate:whygos": "tsx scripts/migrate-whygos.ts",
     "migrate:role-references": "tsx scripts/migrate-employee-role-references.ts",
-    "clear:whygos": "tsx scripts/clear-whygos.ts"
+    "migrate:employees-csv": "tsx scripts/migrate-employees-from-csv.ts",
+    "migrate:whygos-csv": "tsx scripts/migrate-whygos-from-csv.ts",
+    "clear:whygos": "tsx scripts/clear-whygos.ts",
+    "clear:employees": "tsx scripts/clear-employees.ts",
+    "clear:role-references": "tsx scripts/clear-employee-role-references.ts",
+    "clear:all": "tsx scripts/clear-all.ts",
+    "export:csv": "tsx scripts/export-to-csv.ts",
+    "validate": "tsx scripts/validate-data.ts"
   },
   "devDependencies": {
     "@types/react": "^19.2.8",
@@ -28,6 +35,8 @@
   "dependencies": {
     "@headlessui/react": "^2.2.9",
     "clsx": "^2.1.1",
+    "csv-parse": "^6.1.0",
+    "csv-stringify": "^6.5.3",
     "date-fns": "^4.1.0",
     "firebase": "^12.8.0",
     "lucide-react": "^0.562.0",

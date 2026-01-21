@@ -35,3 +35,6 @@ lerna-debug.log*
 firebase-debug.log
 firestore-debug.log
 firebase-service-account.json
+
+# CSV Exports (contain employee data)
+*_export_*.csv
