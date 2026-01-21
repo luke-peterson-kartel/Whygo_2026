@@ -236,6 +236,8 @@ async function migrateWhyGOsFromCSV() {
         ownerName: whygo['WhyGO Owner'],
         status: normalizeStatus(whygo.Status),
         approvedBy: whygo['Approved By'] || null,
+        approvedByName: whygo['Approved By'] || null,
+        approvedAt: whygo['Approved By'] ? new Date() : null,
         year: 2026,
         createdAt: new Date(),
         updatedAt: new Date(),

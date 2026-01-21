@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { WhyGOWithOutcomes } from '@/types/whygo.types';
 import { OutcomeRow } from './OutcomeRow';
 import { SupportingDepartmentGoals } from './SupportingDepartmentGoals';
+import { StatusChangeButton } from './StatusChangeButton';
 import { Target, User, Calendar, Edit2, Trash2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUpdateWhyGO } from '@/hooks/useUpdateWhyGO';
@@ -209,6 +210,24 @@ export function WhyGOCard({ whygo, number, showOwner = false, refetch }: WhyGOCa
           </div>
         )}
       </div>
+
+      {/* Status Change Controls - Only for Executives */}
+      {user && user.level === 'executive' && !isEditing && (
+        <div className="px-6 pb-6 border-t border-gray-200 pt-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-gray-700 mb-1">Change Status</p>
+              <p className="text-xs text-gray-500">Only executives can modify WhyGO status</p>
+            </div>
+            <StatusChangeButton
+              whygoId={whygo.id}
+              currentStatus={whygo.status}
+              whygoLevel={whygo.level}
+              onStatusChanged={refetch}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Dialog */}
       {showDeleteConfirm && (

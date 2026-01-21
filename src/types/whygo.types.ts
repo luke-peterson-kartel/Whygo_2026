@@ -24,6 +24,7 @@ export interface WhyGO {
   updatedAt: Timestamp;
   createdBy: string;
   approvedBy: string | null;
+  approvedByName: string | null;
   approvedAt: Timestamp | null;
 }
 

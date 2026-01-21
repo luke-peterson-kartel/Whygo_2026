@@ -36,7 +36,7 @@ export function Sidebar() {
       name: 'Goals',
       items: [
         { name: 'Create Goal', href: '/goals/new', icon: PlusCircle },
-        { name: 'All Goals - Q1', href: '/goals', icon: Target },
+        { name: 'All WhyGos - Q1', href: '/goals', icon: Target },
       ],
     },
     { name: 'Update Progress', href: '/progress/update', icon: TrendingUp },
