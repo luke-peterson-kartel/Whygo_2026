@@ -31,11 +31,11 @@ export class PermissionService {
     // Executives can edit anything
     if (user.level === 'executive') return true;
 
-    // Department heads can edit their department's individual WhyGOs
+    // Department heads can edit their department's WhyGOs (both department and individual level)
     if (
       user.level === 'department_head' &&
-      whygo.level === 'individual' &&
-      whygo.department === user.department
+      whygo.department === user.department &&
+      (whygo.level === 'department' || whygo.level === 'individual')
     ) {
       return true;
     }
@@ -106,11 +106,11 @@ export class PermissionService {
     // Executives can delete anything
     if (user.level === 'executive') return true;
 
-    // Department heads can delete their department's individual WhyGOs
+    // Department heads can delete their department's WhyGOs (both department and individual level)
     if (
       user.level === 'department_head' &&
-      whygo.level === 'individual' &&
-      whygo.department === user.department
+      whygo.department === user.department &&
+      (whygo.level === 'department' || whygo.level === 'individual')
     ) {
       return true;
     }
