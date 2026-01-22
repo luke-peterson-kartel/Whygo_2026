@@ -209,3 +209,99 @@ export function calculateHealthPercentage(
     notStartedPct: Math.round((health.notStarted / total) * 100),
   };
 }
+
+/**
+ * Get company-level WhyGOs only
+ */
+export function getCompanyWhyGOs(whygos: WhyGOWithOutcomes[]): WhyGOWithOutcomes[] {
+  return whygos.filter((whygo) => whygo.level === 'company');
+}
+
+/**
+ * Calculate Q1-only outcome summary for outcomes
+ */
+export function getQ1OutcomeSummary(outcomes: any[]) {
+  return {
+    onTrack: outcomes.filter((o) => o.q1Status === '+').length,
+    slightlyOff: outcomes.filter((o) => o.q1Status === '~').length,
+    offTrack: outcomes.filter((o) => o.q1Status === '-').length,
+    notStarted: outcomes.filter((o) => o.q1Status === null).length,
+    total: outcomes.length,
+  };
+}
+
+/**
+ * Filter quarterly breakdown to Q1 only
+ */
+export function getQ1Breakdown(whygos: WhyGOWithOutcomes[]): QuarterlyStats {
+  const allOutcomes = whygos.flatMap((whygo) => whygo.outcomes);
+
+  let onTrack = 0;
+  let slightlyOff = 0;
+  let offTrack = 0;
+  let notStarted = 0;
+
+  allOutcomes.forEach((outcome) => {
+    const status = outcome.q1Status;
+    if (status === '+') onTrack++;
+    else if (status === '~') slightlyOff++;
+    else if (status === '-') offTrack++;
+    else notStarted++;
+  });
+
+  const total = onTrack + slightlyOff + offTrack + notStarted;
+
+  return {
+    quarter: 'q1',
+    quarterLabel: 'Q1',
+    onTrack,
+    slightlyOff,
+    offTrack,
+    notStarted,
+    total,
+  };
+}
+
+/**
+ * Calculate department stats with Q1 filtering
+ */
+export function calculateDepartmentStatsQ1(whygos: WhyGOWithOutcomes[]): DepartmentStat[] {
+  const departmentMap = new Map<string, WhyGOWithOutcomes[]>();
+
+  whygos.forEach((whygo) => {
+    if (whygo.level === 'department' && whygo.department) {
+      const deptWhyGOs = departmentMap.get(whygo.department) || [];
+      deptWhyGOs.push(whygo);
+      departmentMap.set(whygo.department, deptWhyGOs);
+    }
+  });
+
+  const stats: DepartmentStat[] = [];
+
+  departmentMap.forEach((deptWhyGOs, department) => {
+    const health = {
+      onTrack: 0,
+      slightlyOff: 0,
+      offTrack: 0,
+      notStarted: 0,
+    };
+
+    // Aggregate Q1 health only
+    deptWhyGOs.forEach((whygo) => {
+      const q1Summary = getQ1OutcomeSummary(whygo.outcomes);
+      health.onTrack += q1Summary.onTrack;
+      health.slightlyOff += q1Summary.slightlyOff;
+      health.offTrack += q1Summary.offTrack;
+      health.notStarted += q1Summary.notStarted;
+    });
+
+    stats.push({
+      name: department,
+      goalCount: deptWhyGOs.length,
+      health,
+      whygos: deptWhyGOs,
+    });
+  });
+
+  return stats.sort((a, b) => a.name.localeCompare(b.name));
+}

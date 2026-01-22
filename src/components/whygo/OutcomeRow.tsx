@@ -63,6 +63,13 @@ export function OutcomeRow({ outcome, number, whygoId, refetch }: OutcomeRowProp
 
   // Local state for edited values
   const [editedData, setEditedData] = useState<{
+    description: string;
+    annualTarget: number;
+    unit: string;
+    q1Target: number;
+    q2Target: number;
+    q3Target: number;
+    q4Target: number;
     q1Actual: string | number | null;
     q1Status: StatusIndicator;
     q2Actual: string | number | null;
@@ -72,6 +79,13 @@ export function OutcomeRow({ outcome, number, whygoId, refetch }: OutcomeRowProp
     q4Actual: string | number | null;
     q4Status: StatusIndicator;
   }>({
+    description: outcome.description,
+    annualTarget: typeof outcome.annualTarget === 'number' ? outcome.annualTarget : parseFloat(outcome.annualTarget as string),
+    unit: outcome.unit,
+    q1Target: typeof outcome.q1Target === 'number' ? outcome.q1Target : parseFloat(outcome.q1Target as string),
+    q2Target: typeof outcome.q2Target === 'number' ? outcome.q2Target : parseFloat(outcome.q2Target as string),
+    q3Target: typeof outcome.q3Target === 'number' ? outcome.q3Target : parseFloat(outcome.q3Target as string),
+    q4Target: typeof outcome.q4Target === 'number' ? outcome.q4Target : parseFloat(outcome.q4Target as string),
     q1Actual: outcome.q1Actual,
     q1Status: outcome.q1Status,
     q2Actual: outcome.q2Actual,
@@ -84,15 +98,48 @@ export function OutcomeRow({ outcome, number, whygoId, refetch }: OutcomeRowProp
 
   // Check if user can edit this outcome
   const canEdit = user ? PermissionService.canUpdateProgress(user, outcome) : false;
+  const canEditDetails = user ? PermissionService.canEditOutcomeDetails(user) : false;
 
   const handleSave = async () => {
     setIsSaving(true);
     setError(null);
 
-    // Update each quarter that changed
-    const quarters: Array<'q1' | 'q2' | 'q3' | 'q4'> = ['q1', 'q2', 'q3', 'q4'];
-
     try {
+      // Check if outcome details changed
+      const detailsChanged = {
+        description: editedData.description !== outcome.description,
+        annualTarget: editedData.annualTarget !== (typeof outcome.annualTarget === 'number' ? outcome.annualTarget : parseFloat(outcome.annualTarget as string)),
+        unit: editedData.unit !== outcome.unit,
+        q1Target: editedData.q1Target !== (typeof outcome.q1Target === 'number' ? outcome.q1Target : parseFloat(outcome.q1Target as string)),
+        q2Target: editedData.q2Target !== (typeof outcome.q2Target === 'number' ? outcome.q2Target : parseFloat(outcome.q2Target as string)),
+        q3Target: editedData.q3Target !== (typeof outcome.q3Target === 'number' ? outcome.q3Target : parseFloat(outcome.q3Target as string)),
+        q4Target: editedData.q4Target !== (typeof outcome.q4Target === 'number' ? outcome.q4Target : parseFloat(outcome.q4Target as string)),
+      };
+
+      const hasDetailsChanges = Object.values(detailsChanged).some(changed => changed);
+
+      // If details changed, update them in a single call
+      if (hasDetailsChanges) {
+        const detailUpdates: any = {};
+        if (detailsChanged.description) detailUpdates.description = editedData.description;
+        if (detailsChanged.annualTarget) detailUpdates.annualTarget = editedData.annualTarget;
+        if (detailsChanged.unit) detailUpdates.unit = editedData.unit;
+        if (detailsChanged.q1Target) detailUpdates.q1Target = editedData.q1Target;
+        if (detailsChanged.q2Target) detailUpdates.q2Target = editedData.q2Target;
+        if (detailsChanged.q3Target) detailUpdates.q3Target = editedData.q3Target;
+        if (detailsChanged.q4Target) detailUpdates.q4Target = editedData.q4Target;
+
+        const result = await updateOutcome(whygoId, outcome, detailUpdates);
+        if (!result.success) {
+          setError(result.error || 'Failed to update outcome details');
+          setIsSaving(false);
+          return;
+        }
+      }
+
+      // Update each quarter's progress that changed
+      const quarters: Array<'q1' | 'q2' | 'q3' | 'q4'> = ['q1', 'q2', 'q3', 'q4'];
+
       for (const quarter of quarters) {
         const actualKey = `${quarter}Actual` as keyof typeof editedData;
         const statusKey = `${quarter}Status` as keyof typeof editedData;
@@ -128,6 +175,13 @@ export function OutcomeRow({ outcome, number, whygoId, refetch }: OutcomeRowProp
   const handleCancel = () => {
     // Reset edited data to original values
     setEditedData({
+      description: outcome.description,
+      annualTarget: typeof outcome.annualTarget === 'number' ? outcome.annualTarget : parseFloat(outcome.annualTarget as string),
+      unit: outcome.unit,
+      q1Target: typeof outcome.q1Target === 'number' ? outcome.q1Target : parseFloat(outcome.q1Target as string),
+      q2Target: typeof outcome.q2Target === 'number' ? outcome.q2Target : parseFloat(outcome.q2Target as string),
+      q3Target: typeof outcome.q3Target === 'number' ? outcome.q3Target : parseFloat(outcome.q3Target as string),
+      q4Target: typeof outcome.q4Target === 'number' ? outcome.q4Target : parseFloat(outcome.q4Target as string),
       q1Actual: outcome.q1Actual,
       q1Status: outcome.q1Status,
       q2Actual: outcome.q2Actual,
@@ -157,7 +211,9 @@ export function OutcomeRow({ outcome, number, whygoId, refetch }: OutcomeRowProp
             </div>
           </div>
           <div className="flex-1">
-            <p className="text-gray-900 font-medium mb-1">{outcome.description}</p>
+            <p className="text-gray-900 font-medium mb-1">
+              {isEditing && canEditDetails ? editedData.description : outcome.description}
+            </p>
 
             {/* Mini Progress Bar */}
             {ytdProgress.hasProgress && (
@@ -184,7 +240,10 @@ export function OutcomeRow({ outcome, number, whygoId, refetch }: OutcomeRowProp
               <div className="flex items-center gap-2">
                 <span className="text-gray-500">Annual Target:</span>
                 <span className="font-semibold text-gray-900">
-                  {formatValue(outcome.annualTarget, outcome.unit)}
+                  {formatValue(
+                    isEditing && canEditDetails ? editedData.annualTarget : outcome.annualTarget,
+                    isEditing && canEditDetails ? editedData.unit : outcome.unit
+                  )}
                 </span>
               </div>
 
@@ -268,44 +327,161 @@ export function OutcomeRow({ outcome, number, whygoId, refetch }: OutcomeRowProp
             </div>
           )}
 
+          {/* Outcome Details Editor - Only for executives and department heads */}
+          {isEditing && canEditDetails && (
+            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h4 className="text-sm font-semibold text-blue-900 mb-3">Edit Outcome Details</h4>
+
+              {/* Description */}
+              <div className="mb-3">
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  value={editedData.description}
+                  onChange={(e) => setEditedData({ ...editedData, description: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  rows={2}
+                  maxLength={200}
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  {editedData.description.length}/200 characters
+                </p>
+              </div>
+
+              {/* Unit Selector */}
+              <div className="mb-3">
+                <label htmlFor="unit" className="block text-sm font-medium text-gray-700 mb-1">
+                  Unit
+                </label>
+                <select
+                  id="unit"
+                  value={editedData.unit}
+                  onChange={(e) => setEditedData({ ...editedData, unit: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="count">Count</option>
+                  <option value="USD">USD</option>
+                  <option value="percentage">Percentage</option>
+                  <option value="hours">Hours</option>
+                  <option value="days">Days</option>
+                </select>
+              </div>
+
+              {/* Targets Grid */}
+              <div className="grid grid-cols-5 gap-3">
+                <div>
+                  <label htmlFor="annualTarget" className="block text-sm font-medium text-gray-700 mb-1">
+                    Annual Target
+                  </label>
+                  <input
+                    id="annualTarget"
+                    type="number"
+                    value={editedData.annualTarget}
+                    onChange={(e) => setEditedData({ ...editedData, annualTarget: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    step="0.01"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="q1Target" className="block text-sm font-medium text-gray-700 mb-1">
+                    Q1 Target
+                  </label>
+                  <input
+                    id="q1Target"
+                    type="number"
+                    value={editedData.q1Target}
+                    onChange={(e) => setEditedData({ ...editedData, q1Target: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    step="0.01"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="q2Target" className="block text-sm font-medium text-gray-700 mb-1">
+                    Q2 Target
+                  </label>
+                  <input
+                    id="q2Target"
+                    type="number"
+                    value={editedData.q2Target}
+                    onChange={(e) => setEditedData({ ...editedData, q2Target: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    step="0.01"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="q3Target" className="block text-sm font-medium text-gray-700 mb-1">
+                    Q3 Target
+                  </label>
+                  <input
+                    id="q3Target"
+                    type="number"
+                    value={editedData.q3Target}
+                    onChange={(e) => setEditedData({ ...editedData, q3Target: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    step="0.01"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="q4Target" className="block text-sm font-medium text-gray-700 mb-1">
+                    Q4 Target
+                  </label>
+                  <input
+                    id="q4Target"
+                    type="number"
+                    value={editedData.q4Target}
+                    onChange={(e) => setEditedData({ ...editedData, q4Target: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    step="0.01"
+                  />
+                </div>
+              </div>
+
+              <p className="mt-2 text-xs text-blue-600">
+                Note: Changes to targets will be saved when you click "Save" above
+              </p>
+            </div>
+          )}
+
           {/* Quarter Cards */}
           <div className="grid grid-cols-4 gap-3">
             <QuarterCardEditable
               quarter="Q1"
-              target={outcome.q1Target}
+              target={isEditing && canEditDetails ? editedData.q1Target : outcome.q1Target}
               actual={editedData.q1Actual}
               status={editedData.q1Status}
-              unit={outcome.unit}
+              unit={isEditing && canEditDetails ? editedData.unit : outcome.unit}
               isEditing={isEditing}
               onActualChange={(value) => setEditedData({ ...editedData, q1Actual: value })}
               onStatusChange={(status) => setEditedData({ ...editedData, q1Status: status })}
             />
             <QuarterCardEditable
               quarter="Q2"
-              target={outcome.q2Target}
+              target={isEditing && canEditDetails ? editedData.q2Target : outcome.q2Target}
               actual={editedData.q2Actual}
               status={editedData.q2Status}
-              unit={outcome.unit}
+              unit={isEditing && canEditDetails ? editedData.unit : outcome.unit}
               isEditing={isEditing}
               onActualChange={(value) => setEditedData({ ...editedData, q2Actual: value })}
               onStatusChange={(status) => setEditedData({ ...editedData, q2Status: status })}
             />
             <QuarterCardEditable
               quarter="Q3"
-              target={outcome.q3Target}
+              target={isEditing && canEditDetails ? editedData.q3Target : outcome.q3Target}
               actual={editedData.q3Actual}
               status={editedData.q3Status}
-              unit={outcome.unit}
+              unit={isEditing && canEditDetails ? editedData.unit : outcome.unit}
               isEditing={isEditing}
               onActualChange={(value) => setEditedData({ ...editedData, q3Actual: value })}
               onStatusChange={(status) => setEditedData({ ...editedData, q3Status: status })}
             />
             <QuarterCardEditable
               quarter="Q4"
-              target={outcome.q4Target}
+              target={isEditing && canEditDetails ? editedData.q4Target : outcome.q4Target}
               actual={editedData.q4Actual}
               status={editedData.q4Status}
-              unit={outcome.unit}
+              unit={isEditing && canEditDetails ? editedData.unit : outcome.unit}
               isEditing={isEditing}
               onActualChange={(value) => setEditedData({ ...editedData, q4Actual: value })}
               onStatusChange={(status) => setEditedData({ ...editedData, q4Status: status })}

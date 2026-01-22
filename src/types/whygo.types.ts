@@ -98,6 +98,15 @@ export interface Alignment {
   createdAt: Timestamp;
 }
 
+export interface Note {
+  id: string;
+  whygoId: string;
+  text: string;
+  authorId: string;
+  authorName: string;
+  createdAt: Timestamp;
+}
+
 export interface WhyGOWithOutcomes extends WhyGO {
   outcomes: Outcome[];
 }

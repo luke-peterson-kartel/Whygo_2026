@@ -15,6 +15,7 @@ import { DepartmentView } from '@/pages/dashboards/DepartmentView';
 import { MyGoalsView } from '@/pages/dashboards/MyGoalsView';
 import { ManagementDashboard } from '@/pages/dashboards/ManagementDashboard';
 import { CreateGoalPage } from '@/pages/CreateGoalPage';
+import { WhyGODetailPage } from '@/pages/WhyGODetailPage';
 import { DEPARTMENT_CONFIGS } from '@/lib/departmentConfig';
 import { DevModeProvider } from '@/contexts/DevModeContext';
 
@@ -46,11 +47,8 @@ export function App() {
             {/* Goal routes */}
             <Route path="/goals" element={<AllGoalsView />} />
             <Route path="/goals/new" element={<CreateGoalPage />} />
-            <Route path="/goals/:id" element={<PlaceholderPage title="Goal Detail" />} />
+            <Route path="/goals/:id" element={<WhyGODetailPage />} />
             <Route path="/goals/:id/edit" element={<PlaceholderPage title="Edit Goal" />} />
-
-            {/* Progress routes - placeholders */}
-            <Route path="/progress/update" element={<PlaceholderPage title="Update Progress" />} />
           </Route>
         </Route>
 

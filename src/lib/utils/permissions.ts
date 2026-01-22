@@ -83,6 +83,11 @@ export class PermissionService {
     return false;
   }
 
+  static canEditOutcomeDetails(user: Employee): boolean {
+    // Only executives and department heads can edit outcome details (description, targets, unit)
+    return user.level === 'executive' || user.level === 'department_head';
+  }
+
   static canApproveWhyGO(user: Employee, whygo: WhyGO): boolean {
     // Company level: only CEO/executives
     if (whygo.level === 'company') {

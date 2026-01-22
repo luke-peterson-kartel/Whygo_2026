@@ -27,13 +27,6 @@ export function Home() {
       href: '/goals/new',
       color: 'bg-purple-500',
     },
-    {
-      title: 'Update Progress',
-      description: 'Track your quarterly outcomes',
-      icon: TrendingUp,
-      href: '/progress/update',
-      color: 'bg-orange-500',
-    },
   ];
 
   return (

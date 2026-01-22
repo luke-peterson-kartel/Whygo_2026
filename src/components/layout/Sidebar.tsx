@@ -7,7 +7,6 @@ import {
   Users,
   User,
   Target,
-  TrendingUp,
   PlusCircle,
   Code,
   X,
@@ -39,7 +38,6 @@ export function Sidebar() {
         { name: 'All WhyGos - Q1', href: '/goals', icon: Target },
       ],
     },
-    { name: 'Update Progress', href: '/progress/update', icon: TrendingUp },
   ];
 
   return (

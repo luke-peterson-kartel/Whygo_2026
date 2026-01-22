@@ -2,9 +2,11 @@ import { useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useWhyGOs } from '@/hooks/useWhyGOs';
 import { PermissionService } from '@/lib/utils/permissions';
-import { calculateManagementMetrics } from '@/lib/utils/managementStats';
+import { calculateManagementMetrics, getQ1Breakdown } from '@/lib/utils/managementStats';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { CompanyWhyGOList } from '@/components/management/CompanyWhyGOList';
+import { DepartmentGoalList } from '@/components/management/DepartmentGoalList';
 import { BarChart3 } from 'lucide-react';
 
 export function ManagementDashboard() {
@@ -97,10 +99,10 @@ export function ManagementDashboard() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
           <BarChart3 className="w-8 h-8 text-blue-600" />
-          Management Dashboard
+          Management Dashboard - Q1 2026
         </h1>
         <p className="text-gray-600 mt-2">
-          Company-wide goal health and status overview
+          Q1 2026 company-wide goal health and status overview
         </p>
       </div>
 
@@ -192,97 +194,11 @@ export function ManagementDashboard() {
           )}
         </div>
 
-        {/* Department Performance - Phase 5 */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Department Performance</h2>
-          {metrics && metrics.departmentStats.length > 0 ? (
-            <div className="space-y-3">
-              {metrics.departmentStats.map((dept) => (
-                <div key={dept.name} className="p-4 border border-gray-200 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{dept.name}</h3>
-                      <p className="text-sm text-gray-600">{dept.goalCount} goal{dept.goalCount !== 1 ? 's' : ''}</p>
-                    </div>
-                    <div className="flex gap-2 text-sm">
-                      <span className="px-2 py-1 bg-green-100 text-green-800 rounded">+{dept.health.onTrack}</span>
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded">~{dept.health.slightlyOff}</span>
-                      <span className="px-2 py-1 bg-red-100 text-red-800 rounded">-{dept.health.offTrack}</span>
-                      <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded">{dept.health.notStarted}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-600">No department goals found</p>
-          )}
-        </div>
+        {/* Company WhyGO Performance - New Section */}
+        <CompanyWhyGOList whygos={whygos} />
 
-        {/* Quarterly Progress - Phase 6 */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Quarterly Progress</h2>
-          {metrics ? (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead>
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    {metrics.quarterlyBreakdown.map((q) => (
-                      <th key={q.quarter} className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                        {q.quarterLabel}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  <tr>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">On Track</td>
-                    {metrics.quarterlyBreakdown.map((q) => (
-                      <td key={q.quarter} className="px-4 py-3 text-center text-sm text-green-600 font-semibold">
-                        {q.onTrack}
-                      </td>
-                    ))}
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">Slightly Off</td>
-                    {metrics.quarterlyBreakdown.map((q) => (
-                      <td key={q.quarter} className="px-4 py-3 text-center text-sm text-yellow-600 font-semibold">
-                        {q.slightlyOff}
-                      </td>
-                    ))}
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">Off Track</td>
-                    {metrics.quarterlyBreakdown.map((q) => (
-                      <td key={q.quarter} className="px-4 py-3 text-center text-sm text-red-600 font-semibold">
-                        {q.offTrack}
-                      </td>
-                    ))}
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">Not Started</td>
-                    {metrics.quarterlyBreakdown.map((q) => (
-                      <td key={q.quarter} className="px-4 py-3 text-center text-sm text-gray-600 font-semibold">
-                        {q.notStarted}
-                      </td>
-                    ))}
-                  </tr>
-                  <tr className="bg-gray-50">
-                    <td className="px-4 py-3 text-sm font-bold text-gray-900">Total</td>
-                    {metrics.quarterlyBreakdown.map((q) => (
-                      <td key={q.quarter} className="px-4 py-3 text-center text-sm font-bold text-gray-900">
-                        {q.total}
-                      </td>
-                    ))}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="text-gray-600">No quarterly data available</p>
-          )}
-        </div>
+        {/* Department Performance - Enhanced Section */}
+        <DepartmentGoalList whygos={whygos} />
 
         {/* Pending Approvals - Phase 7 */}
         <div className="bg-white border border-gray-200 rounded-lg p-6">
