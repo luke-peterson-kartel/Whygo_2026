@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react';
 import { Calculator, Save, RefreshCw } from 'lucide-react';
 import { calculateForecast, formatCurrency, formatPercent } from '@/lib/utils/forecastCalculations';
-import { DEFAULT_SCENARIO_INPUTS, WHYGO_QUARTERLY_TARGETS } from '@/types/forecasting.types';
+import { DEFAULT_SCENARIO_INPUTS } from '@/types/forecasting.types';
 import { useForecastingScenarios } from '@/hooks/useForecastingScenarios';
 import { useDevMode } from '@/hooks/useDevMode';
+import { useSalesConfig } from '@/hooks/useSalesConfig';
 import { SaveScenarioModal } from '@/components/forecasting/SaveScenarioModal';
 import { ScenarioCard } from '@/components/forecasting/ScenarioCard';
 import type { ScenarioInputs, ForecastingScenario, ScenarioType, MonthlySpecs } from '@/types/forecasting.types';
@@ -21,6 +22,8 @@ export function WhatIfTab() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
 
+  const { eoyRevenueTarget, totalSpecsTarget } = useSalesConfig(2026);
+
   const {
     scenarios,
     loading: scenariosLoading,
@@ -34,8 +37,8 @@ export function WhatIfTab() {
   // Calculate outputs whenever inputs change
   const outputs = useMemo(() => calculateForecast(inputs), [inputs]);
 
-  // Calculate variance from WhyGO target
-  const targetVariance = outputs.annualRevenue - WHYGO_QUARTERLY_TARGETS.q4;
+  // Calculate variance from WhyGO target (single source of truth)
+  const targetVariance = outputs.annualRevenue - eoyRevenueTarget;
   const isAboveTarget = targetVariance >= 0;
 
   // Calculate total specs
@@ -126,7 +129,7 @@ export function WhatIfTab() {
               ))}
             </div>
             <p className="text-xs text-gray-500">
-              Total: {totalSpecs} specs (WhyGO target: 18). Specs convert 2 months after closing.
+              Total: {totalSpecs} specs (WhyGO target: {totalSpecsTarget}). Specs convert 2 months after closing.
             </p>
           </div>
 
@@ -206,7 +209,7 @@ export function WhatIfTab() {
                 {formatCurrency(outputs.annualRevenue)}
               </p>
               <p className={`text-xs mt-1 ${isAboveTarget ? 'text-green-600' : 'text-red-600'}`}>
-                {isAboveTarget ? '+' : ''}{formatCurrency(targetVariance)} vs $7M target
+                {isAboveTarget ? '+' : ''}{formatCurrency(targetVariance)} vs {formatCurrency(eoyRevenueTarget)} target
               </p>
             </div>
           </div>
@@ -283,6 +286,7 @@ export function WhatIfTab() {
                 onLoad={handleLoadScenario}
                 onDelete={handleDeleteScenario}
                 isSelected={selectedScenarioId === scenario.id}
+                revenueTarget={eoyRevenueTarget}
               />
             ))}
           </div>

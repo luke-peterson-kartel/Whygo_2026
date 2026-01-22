@@ -155,10 +155,6 @@ export const MONTH_LABELS: Record<MonthNumber, string> = {
   12: 'December',
 };
 
-// WhyGO quarterly targets for reference
-export const WHYGO_QUARTERLY_TARGETS: QuarterlyData = {
-  q1: 1500000,  // $1.5M
-  q2: 3500000,  // $3.5M cumulative
-  q3: 5500000,  // $5.5M cumulative
-  q4: 7000000,  // $7M cumulative
-};
+// NOTE: Quarterly targets are now managed through useSalesConfig hook
+// which is the single source of truth for sales configuration data.
+// Import { SALES_DEFAULTS } from '@/hooks/useSalesConfig' for default values.

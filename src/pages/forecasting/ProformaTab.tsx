@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import { FileSpreadsheet, TrendingUp, TrendingDown, RefreshCw, AlertCircle } from 'lucide-react';
 import { formatCurrency, formatPercent } from '@/lib/utils/forecastCalculations';
-import { DEFAULT_SCENARIO_INPUTS, WHYGO_QUARTERLY_TARGETS } from '@/types/forecasting.types';
+import { DEFAULT_SCENARIO_INPUTS } from '@/types/forecasting.types';
 import type { MonthlySpecs, ScenarioInputs } from '@/types/forecasting.types';
-import { useSalesWhyGOData } from '@/hooks/useSalesWhyGOData';
+import { useSalesConfig } from '@/hooks/useSalesConfig';
 
 const MONTH_KEYS: Array<keyof MonthlySpecs> = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -189,51 +189,42 @@ function calculateProforma(
 
 export function ProformaTab() {
   const [inputs, setInputs] = useState<ScenarioInputs>(DEFAULT_SCENARIO_INPUTS);
-  const { targets, whygoGoal, ownerName, loading, error, refetch } = useSalesWhyGOData(2026);
+  const {
+    cumulativeTargets,
+    eoyRevenueTarget,
+    totalSpecsTarget,
+    whygoGoal,
+    ownerName,
+    loading,
+    error,
+    refetch
+  } = useSalesConfig(2026);
 
-  // Build quarterly targets from Sales WhyGO data
+  // Build quarterly targets from centralized config (single source of truth)
   const quarterlyTargets = useMemo((): QuarterlyTargets => {
-    // Get cumulative targets from WhyGO outcomes, fallback to defaults
-    const getQuarterTarget = (q: 'q1' | 'q2' | 'q3' | 'q4', prevCumulative: number) => {
-      if (targets[q].revenue > 0) {
-        return targets[q].revenue;
-      }
-      // Fallback to cumulative targets
-      return WHYGO_QUARTERLY_TARGETS[q];
-    };
-
-    // Build cumulative arrays for quarterly display
-    const revenueTarget = [
-      getQuarterTarget('q1', 0),
-      getQuarterTarget('q2', 0),
-      getQuarterTarget('q3', 0),
-      getQuarterTarget('q4', 0),
-    ];
-
-    // Calculate cumulative specs targets
-    const specsTarget = [
-      targets.q1.specs || 4,
-      (targets.q1.specs || 4) + (targets.q2.specs || 6),
-      (targets.q1.specs || 4) + (targets.q2.specs || 6) + (targets.q3.specs || 4),
-      (targets.q1.specs || 4) + (targets.q2.specs || 6) + (targets.q3.specs || 4) + (targets.q4.specs || 4),
-    ];
-
-    // Calculate cumulative conversions targets
-    const clientsTarget = [
-      targets.q1.conversions || 0,
-      (targets.q1.conversions || 0) + (targets.q2.conversions || 3),
-      (targets.q1.conversions || 0) + (targets.q2.conversions || 3) + (targets.q3.conversions || 5),
-      (targets.q1.conversions || 0) + (targets.q2.conversions || 3) + (targets.q3.conversions || 5) + (targets.q4.conversions || 6),
-    ];
-
     return {
-      specsTarget,
-      clientsTarget,
-      revenueTarget,
-      totalSpecsTarget: specsTarget[3],
-      totalRevenueTarget: revenueTarget[3],
+      specsTarget: [
+        cumulativeTargets.q1.specs,
+        cumulativeTargets.q2.specs,
+        cumulativeTargets.q3.specs,
+        cumulativeTargets.q4.specs,
+      ],
+      clientsTarget: [
+        cumulativeTargets.q1.conversions,
+        cumulativeTargets.q2.conversions,
+        cumulativeTargets.q3.conversions,
+        cumulativeTargets.q4.conversions,
+      ],
+      revenueTarget: [
+        cumulativeTargets.q1.revenue,
+        cumulativeTargets.q2.revenue,
+        cumulativeTargets.q3.revenue,
+        cumulativeTargets.q4.revenue,
+      ],
+      totalSpecsTarget,
+      totalRevenueTarget: eoyRevenueTarget,
     };
-  }, [targets]);
+  }, [cumulativeTargets, totalSpecsTarget, eoyRevenueTarget]);
 
   const proforma = useMemo(
     () => calculateProforma(inputs.specsPerMonth, inputs.conversionRate, inputs.avgMonthlyFee, quarterlyTargets),

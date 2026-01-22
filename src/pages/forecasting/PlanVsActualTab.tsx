@@ -1,7 +1,6 @@
 import { TrendingUp, TrendingDown, Minus, AlertCircle, RefreshCw } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils/forecastCalculations';
-import { WHYGO_QUARTERLY_TARGETS } from '@/types/forecasting.types';
-import { useSalesWhyGOData } from '@/hooks/useSalesWhyGOData';
+import { useSalesConfig } from '@/hooks/useSalesConfig';
 
 interface QuarterCardProps {
   quarter: string;
@@ -74,7 +73,18 @@ function QuarterCard({ quarter, target, actual, specsTarget, specsActual, conver
 }
 
 export function PlanVsActualTab() {
-  const { actuals, targets, whygoGoal, ownerName, loading, error, refetch } = useSalesWhyGOData(2026);
+  const {
+    actuals,
+    targets,
+    whygoGoal,
+    ownerName,
+    eoyRevenueTarget,
+    totalSpecsTarget,
+    totalConversionsTarget,
+    loading,
+    error,
+    refetch
+  } = useSalesConfig(2026);
 
   // Calculate YTD totals from actuals
   const ytdActualRevenue = [actuals.q1.revenue, actuals.q2.revenue, actuals.q3.revenue, actuals.q4.revenue]
@@ -89,24 +99,8 @@ export function PlanVsActualTab() {
     .filter((c): c is number => c !== null)
     .reduce((sum, c) => sum + c, 0);
 
-  const ytdTarget = WHYGO_QUARTERLY_TARGETS.q4;
+  const ytdTarget = eoyRevenueTarget;
   const ytdPercent = ytdTarget > 0 ? (ytdActualRevenue / ytdTarget) * 100 : 0;
-
-  // Use targets from WhyGO outcomes, fallback to WHYGO_QUARTERLY_TARGETS if not set
-  const getQuarterRevenueTarget = (q: 'q1' | 'q2' | 'q3' | 'q4') => {
-    // If we have targets from the WhyGO, use them
-    if (targets[q].revenue > 0) {
-      return targets[q].revenue;
-    }
-    // Otherwise calculate from cumulative targets (Q1 is q1, Q2 is q2-q1, etc.)
-    const cumulativeTargets = {
-      q1: WHYGO_QUARTERLY_TARGETS.q1,
-      q2: WHYGO_QUARTERLY_TARGETS.q2 - WHYGO_QUARTERLY_TARGETS.q1,
-      q3: WHYGO_QUARTERLY_TARGETS.q3 - WHYGO_QUARTERLY_TARGETS.q2,
-      q4: WHYGO_QUARTERLY_TARGETS.q4 - WHYGO_QUARTERLY_TARGETS.q3,
-    };
-    return cumulativeTargets[q];
-  };
 
   if (loading) {
     return (
@@ -170,38 +164,38 @@ export function PlanVsActualTab() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <QuarterCard
           quarter="Q1"
-          target={getQuarterRevenueTarget('q1')}
+          target={targets.q1.revenue}
           actual={actuals.q1.revenue}
-          specsTarget={targets.q1.specs || 5}
+          specsTarget={targets.q1.specs}
           specsActual={actuals.q1.specs}
-          conversionsTarget={targets.q1.conversions || 4}
+          conversionsTarget={targets.q1.conversions}
           conversionsActual={actuals.q1.conversions}
         />
         <QuarterCard
           quarter="Q2"
-          target={getQuarterRevenueTarget('q2')}
+          target={targets.q2.revenue}
           actual={actuals.q2.revenue}
-          specsTarget={targets.q2.specs || 5}
+          specsTarget={targets.q2.specs}
           specsActual={actuals.q2.specs}
-          conversionsTarget={targets.q2.conversions || 4}
+          conversionsTarget={targets.q2.conversions}
           conversionsActual={actuals.q2.conversions}
         />
         <QuarterCard
           quarter="Q3"
-          target={getQuarterRevenueTarget('q3')}
+          target={targets.q3.revenue}
           actual={actuals.q3.revenue}
-          specsTarget={targets.q3.specs || 4}
+          specsTarget={targets.q3.specs}
           specsActual={actuals.q3.specs}
-          conversionsTarget={targets.q3.conversions || 3}
+          conversionsTarget={targets.q3.conversions}
           conversionsActual={actuals.q3.conversions}
         />
         <QuarterCard
           quarter="Q4"
-          target={getQuarterRevenueTarget('q4')}
+          target={targets.q4.revenue}
           actual={actuals.q4.revenue}
-          specsTarget={targets.q4.specs || 4}
+          specsTarget={targets.q4.specs}
           specsActual={actuals.q4.specs}
-          conversionsTarget={targets.q4.conversions || 3}
+          conversionsTarget={targets.q4.conversions}
           conversionsActual={actuals.q4.conversions}
         />
       </div>
@@ -212,14 +206,14 @@ export function PlanVsActualTab() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center p-4 bg-gray-50 rounded-lg">
             <p className="text-3xl font-bold text-gray-900">
-              {ytdActualSpecs} / 18
+              {ytdActualSpecs} / {totalSpecsTarget}
             </p>
             <p className="text-sm text-gray-500 mt-1">Specs Started</p>
-            <p className="text-xs text-gray-400">Target: 18 by EOY</p>
+            <p className="text-xs text-gray-400">Target: {totalSpecsTarget} by EOY</p>
           </div>
           <div className="text-center p-4 bg-gray-50 rounded-lg">
             <p className="text-3xl font-bold text-gray-900">
-              {ytdActualConversions} / 14
+              {ytdActualConversions} / {totalConversionsTarget}
             </p>
             <p className="text-sm text-gray-500 mt-1">Conversions</p>
             <p className="text-xs text-gray-400">Target: 75% rate</p>

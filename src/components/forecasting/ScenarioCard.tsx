@@ -1,6 +1,5 @@
 import { Trash2, TrendingUp, TrendingDown } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils/forecastCalculations';
-import { WHYGO_QUARTERLY_TARGETS } from '@/types/forecasting.types';
 import type { ForecastingScenario, ScenarioType } from '@/types/forecasting.types';
 
 interface ScenarioCardProps {
@@ -8,6 +7,7 @@ interface ScenarioCardProps {
   onLoad: (scenario: ForecastingScenario) => void;
   onDelete: (id: string) => void;
   isSelected?: boolean;
+  revenueTarget?: number;
 }
 
 const TYPE_STYLES: Record<ScenarioType, { bg: string; text: string; label: string }> = {
@@ -17,9 +17,11 @@ const TYPE_STYLES: Record<ScenarioType, { bg: string; text: string; label: strin
   custom: { bg: 'bg-gray-100', text: 'text-gray-700', label: 'Custom' },
 };
 
-export function ScenarioCard({ scenario, onLoad, onDelete, isSelected }: ScenarioCardProps) {
+const DEFAULT_REVENUE_TARGET = 7000000; // $7M fallback
+
+export function ScenarioCard({ scenario, onLoad, onDelete, isSelected, revenueTarget = DEFAULT_REVENUE_TARGET }: ScenarioCardProps) {
   const typeStyle = TYPE_STYLES[scenario.type];
-  const variance = scenario.outputs.annualRevenue - WHYGO_QUARTERLY_TARGETS.q4;
+  const variance = scenario.outputs.annualRevenue - revenueTarget;
   const isAboveTarget = variance >= 0;
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -67,7 +69,7 @@ export function ScenarioCard({ scenario, onLoad, onDelete, isSelected }: Scenari
         </p>
         <p className={`text-xs flex items-center gap-1 ${isAboveTarget ? 'text-green-600' : 'text-red-600'}`}>
           {isAboveTarget ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-          {isAboveTarget ? '+' : ''}{formatCurrency(variance)} vs $7M target
+          {isAboveTarget ? '+' : ''}{formatCurrency(variance)} vs {formatCurrency(revenueTarget)} target
         </p>
       </div>
 

@@ -1,25 +1,25 @@
 import { useState } from 'react';
 import { Plus, Building2, Pencil, Trash2, AlertCircle, RefreshCw } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils/forecastCalculations';
-import { STAGE_CONFIG, WHYGO_QUARTERLY_TARGETS } from '@/types/forecasting.types';
+import { STAGE_CONFIG } from '@/types/forecasting.types';
 import type { PipelineDeal, DealStage } from '@/types/forecasting.types';
 import { usePipelineDeals } from '@/hooks/usePipelineDeals';
-import { useSalesWhyGOData } from '@/hooks/useSalesWhyGOData';
+import { useSalesConfig } from '@/hooks/useSalesConfig';
 import { DealFormModal } from '@/components/forecasting/DealFormModal';
 
 type StageFilter = DealStage | 'all';
 
 export function PipelineTab() {
   const { deals, loading: dealsLoading, error: dealsError, addDeal, updateDeal, deleteDeal } = usePipelineDeals();
-  const { targets, loading: targetsLoading } = useSalesWhyGOData(2026);
+  const { eoyRevenueTarget, loading: configLoading } = useSalesConfig(2026);
   const [stageFilter, setStageFilter] = useState<StageFilter>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDeal, setEditingDeal] = useState<PipelineDeal | null>(null);
   const [deletingDealId, setDeletingDealId] = useState<string | null>(null);
 
-  // Get revenue target from WhyGO, fallback to default
-  const revenueTarget = targets.q4.revenue > 0 ? targets.q4.revenue : WHYGO_QUARTERLY_TARGETS.q4;
-  const loading = dealsLoading || targetsLoading;
+  // Revenue target from centralized config (single source of truth)
+  const revenueTarget = eoyRevenueTarget;
+  const loading = dealsLoading || configLoading;
   const error = dealsError;
 
   // Filter deals
