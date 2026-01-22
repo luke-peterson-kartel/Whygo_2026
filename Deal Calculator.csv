@@ -1,0 +1,35 @@
+,,,
+,KARTEL ENTERPRISE PRICING CALCULATOR,,
+,Target: $800K - $1M Annual Contract Value,,
+,,,
+,CLIENT INFORMATION,,
+,Client Name,Newell Brands - Bubba,
+,Vertical,CPG / Consumer Products,
+,Deal Stage,Proposal,
+,,,
+,PRICING INPUTS,,
+,Monthly Fee,"$75,000",
+,Total Agreement Length (Months),12,
+,Spec Period (Months 1-2),2,No payment during spec; paid retro if client continues
+,Rush Deliverables/Month (Est.),10,
+,Rush Fee Per Deliverable,$500,
+,,,
+,CALCULATED VALUES,,
+,Annual Contract Value (ACV),"$900,000",Monthly Fee x 12 months
+,Est. Annual Rush Fees,"$50,000",Rush fees only months 3-12 (10 months)
+,Total Contract Revenue,"$950,000",
+,Monthly Recurring Revenue (MRR),"$75,000",
+,,,
+,CASH FLOW TIMELINE,,
+,Month 1,$0,Spec period - no payment (contract signed)
+,Month 2,$0,Spec period - decision point at end of month
+,Month 3 (if client continues),"$225,000","Pays for months 1, 2, AND 3"
+,Months 4-12 (each month),"$75,000",Invoiced at beginning of each month (9 payments)
+,Total Payments,"$900,000",Should equal ACV (3 + 9 = 12 months)
+,,,
+,TARGET ANALYSIS,,
+,Target ACV (Low),"$800,000",
+,Target ACV (High),"$1,000,000",
+,ACV vs. Target Low,12.5%,
+,ACV vs. Target High,-10.0%,
+,Within Target Range?,YES,
