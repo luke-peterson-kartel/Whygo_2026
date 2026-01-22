@@ -1,14 +1,7 @@
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, AlertCircle, RefreshCw } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils/forecastCalculations';
 import { WHYGO_QUARTERLY_TARGETS } from '@/types/forecasting.types';
-
-// Placeholder actuals - will be replaced with Firebase data in Phase 3
-const PLACEHOLDER_ACTUALS = {
-  q1: { specs: 3, conversions: 2, revenue: 450000 },
-  q2: { specs: null, conversions: null, revenue: null },
-  q3: { specs: null, conversions: null, revenue: null },
-  q4: { specs: null, conversions: null, revenue: null },
-};
+import { useSalesWhyGOData } from '@/hooks/useSalesWhyGOData';
 
 interface QuarterCardProps {
   quarter: string;
@@ -81,12 +74,63 @@ function QuarterCard({ quarter, target, actual, specsTarget, specsActual, conver
 }
 
 export function PlanVsActualTab() {
-  // Calculate YTD totals
-  const ytdActual = Object.values(PLACEHOLDER_ACTUALS)
-    .filter(q => q.revenue !== null)
-    .reduce((sum, q) => sum + (q.revenue || 0), 0);
+  const { actuals, targets, whygoGoal, ownerName, loading, error, refetch } = useSalesWhyGOData(2026);
+
+  // Calculate YTD totals from actuals
+  const ytdActualRevenue = [actuals.q1.revenue, actuals.q2.revenue, actuals.q3.revenue, actuals.q4.revenue]
+    .filter((r): r is number => r !== null)
+    .reduce((sum, r) => sum + r, 0);
+
+  const ytdActualSpecs = [actuals.q1.specs, actuals.q2.specs, actuals.q3.specs, actuals.q4.specs]
+    .filter((s): s is number => s !== null)
+    .reduce((sum, s) => sum + s, 0);
+
+  const ytdActualConversions = [actuals.q1.conversions, actuals.q2.conversions, actuals.q3.conversions, actuals.q4.conversions]
+    .filter((c): c is number => c !== null)
+    .reduce((sum, c) => sum + c, 0);
+
   const ytdTarget = WHYGO_QUARTERLY_TARGETS.q4;
-  const ytdPercent = (ytdActual / ytdTarget) * 100;
+  const ytdPercent = ytdTarget > 0 ? (ytdActualRevenue / ytdTarget) * 100 : 0;
+
+  // Use targets from WhyGO outcomes, fallback to WHYGO_QUARTERLY_TARGETS if not set
+  const getQuarterRevenueTarget = (q: 'q1' | 'q2' | 'q3' | 'q4') => {
+    // If we have targets from the WhyGO, use them
+    if (targets[q].revenue > 0) {
+      return targets[q].revenue;
+    }
+    // Otherwise calculate from cumulative targets (Q1 is q1, Q2 is q2-q1, etc.)
+    const cumulativeTargets = {
+      q1: WHYGO_QUARTERLY_TARGETS.q1,
+      q2: WHYGO_QUARTERLY_TARGETS.q2 - WHYGO_QUARTERLY_TARGETS.q1,
+      q3: WHYGO_QUARTERLY_TARGETS.q3 - WHYGO_QUARTERLY_TARGETS.q2,
+      q4: WHYGO_QUARTERLY_TARGETS.q4 - WHYGO_QUARTERLY_TARGETS.q3,
+    };
+    return cumulativeTargets[q];
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+        <p className="text-red-700 mb-4">{error}</p>
+        <button
+          onClick={refetch}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -95,16 +139,19 @@ export function PlanVsActualTab() {
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
           2026 Revenue Targets
         </h3>
-        <p className="text-sm text-gray-600 mb-4">
-          From Sales WhyGO #1: 18+ specs, 75% conversion, $7M revenue
+        <p className="text-sm text-gray-600 mb-1">
+          {whygoGoal || 'Sales WhyGO #1: 18+ specs, 75% conversion, $7M revenue'}
         </p>
+        {ownerName && (
+          <p className="text-xs text-gray-500 mb-4">Owner: {ownerName}</p>
+        )}
 
         {/* YTD Progress */}
         <div className="bg-white rounded-lg p-4">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium text-gray-700">Year-to-Date Progress</span>
             <span className="text-sm text-gray-600">
-              {formatCurrency(ytdActual)} / {formatCurrency(ytdTarget)}
+              {formatCurrency(ytdActualRevenue)} / {formatCurrency(ytdTarget)}
             </span>
           </div>
           <div className="h-4 bg-gray-100 rounded-full overflow-hidden">
@@ -123,39 +170,39 @@ export function PlanVsActualTab() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <QuarterCard
           quarter="Q1"
-          target={WHYGO_QUARTERLY_TARGETS.q1}
-          actual={PLACEHOLDER_ACTUALS.q1.revenue}
-          specsTarget={5}
-          specsActual={PLACEHOLDER_ACTUALS.q1.specs}
-          conversionsTarget={4}
-          conversionsActual={PLACEHOLDER_ACTUALS.q1.conversions}
+          target={getQuarterRevenueTarget('q1')}
+          actual={actuals.q1.revenue}
+          specsTarget={targets.q1.specs || 5}
+          specsActual={actuals.q1.specs}
+          conversionsTarget={targets.q1.conversions || 4}
+          conversionsActual={actuals.q1.conversions}
         />
         <QuarterCard
           quarter="Q2"
-          target={WHYGO_QUARTERLY_TARGETS.q2 - WHYGO_QUARTERLY_TARGETS.q1}
-          actual={PLACEHOLDER_ACTUALS.q2.revenue}
-          specsTarget={5}
-          specsActual={PLACEHOLDER_ACTUALS.q2.specs}
-          conversionsTarget={4}
-          conversionsActual={PLACEHOLDER_ACTUALS.q2.conversions}
+          target={getQuarterRevenueTarget('q2')}
+          actual={actuals.q2.revenue}
+          specsTarget={targets.q2.specs || 5}
+          specsActual={actuals.q2.specs}
+          conversionsTarget={targets.q2.conversions || 4}
+          conversionsActual={actuals.q2.conversions}
         />
         <QuarterCard
           quarter="Q3"
-          target={WHYGO_QUARTERLY_TARGETS.q3 - WHYGO_QUARTERLY_TARGETS.q2}
-          actual={PLACEHOLDER_ACTUALS.q3.revenue}
-          specsTarget={4}
-          specsActual={PLACEHOLDER_ACTUALS.q3.specs}
-          conversionsTarget={3}
-          conversionsActual={PLACEHOLDER_ACTUALS.q3.conversions}
+          target={getQuarterRevenueTarget('q3')}
+          actual={actuals.q3.revenue}
+          specsTarget={targets.q3.specs || 4}
+          specsActual={actuals.q3.specs}
+          conversionsTarget={targets.q3.conversions || 3}
+          conversionsActual={actuals.q3.conversions}
         />
         <QuarterCard
           quarter="Q4"
-          target={WHYGO_QUARTERLY_TARGETS.q4 - WHYGO_QUARTERLY_TARGETS.q3}
-          actual={PLACEHOLDER_ACTUALS.q4.revenue}
-          specsTarget={4}
-          specsActual={PLACEHOLDER_ACTUALS.q4.specs}
-          conversionsTarget={3}
-          conversionsActual={PLACEHOLDER_ACTUALS.q4.conversions}
+          target={getQuarterRevenueTarget('q4')}
+          actual={actuals.q4.revenue}
+          specsTarget={targets.q4.specs || 4}
+          specsActual={actuals.q4.specs}
+          conversionsTarget={targets.q4.conversions || 3}
+          conversionsActual={actuals.q4.conversions}
         />
       </div>
 
@@ -165,21 +212,21 @@ export function PlanVsActualTab() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center p-4 bg-gray-50 rounded-lg">
             <p className="text-3xl font-bold text-gray-900">
-              {PLACEHOLDER_ACTUALS.q1.specs ?? 0} / 18
+              {ytdActualSpecs} / 18
             </p>
             <p className="text-sm text-gray-500 mt-1">Specs Started</p>
             <p className="text-xs text-gray-400">Target: 18 by EOY</p>
           </div>
           <div className="text-center p-4 bg-gray-50 rounded-lg">
             <p className="text-3xl font-bold text-gray-900">
-              {PLACEHOLDER_ACTUALS.q1.conversions ?? 0} / 14
+              {ytdActualConversions} / 14
             </p>
             <p className="text-sm text-gray-500 mt-1">Conversions</p>
             <p className="text-xs text-gray-400">Target: 75% rate</p>
           </div>
           <div className="text-center p-4 bg-gray-50 rounded-lg">
             <p className="text-3xl font-bold text-gray-900">
-              {formatCurrency(ytdActual > 0 ? ytdActual / (PLACEHOLDER_ACTUALS.q1.conversions || 1) : 0)}
+              {formatCurrency(ytdActualConversions > 0 ? ytdActualRevenue / ytdActualConversions : 0)}
             </p>
             <p className="text-sm text-gray-500 mt-1">Avg Deal Size</p>
             <p className="text-xs text-gray-400">Target: $75K/month</p>
@@ -189,7 +236,7 @@ export function PlanVsActualTab() {
 
       {/* Data Source Note */}
       <p className="text-xs text-gray-400 text-center">
-        Actuals will be linked to Sales WhyGO outcomes in Phase 3
+        Data pulled from Sales department WhyGO outcomes. Update actuals in the Sales WhyGO detail view.
       </p>
     </div>
   );

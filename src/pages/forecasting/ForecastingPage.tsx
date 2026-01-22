@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { TrendingUp, BarChart3, Target, Users } from 'lucide-react';
+import { TrendingUp, BarChart3, Target, Users, FileSpreadsheet } from 'lucide-react';
 import { PlanVsActualTab } from './PlanVsActualTab';
 import { WhatIfTab } from './WhatIfTab';
 import { PipelineTab } from './PipelineTab';
+import { ProformaTab } from './ProformaTab';
 
-type TabId = 'plan-vs-actual' | 'what-if' | 'pipeline';
+type TabId = 'plan-vs-actual' | 'what-if' | 'pipeline' | 'proforma';
 
 interface Tab {
   id: TabId;
@@ -15,6 +16,7 @@ interface Tab {
 const TABS: Tab[] = [
   { id: 'plan-vs-actual', label: 'Plan vs Actual', icon: Target },
   { id: 'what-if', label: 'What-If', icon: BarChart3 },
+  { id: 'proforma', label: 'Proforma', icon: FileSpreadsheet },
   { id: 'pipeline', label: 'Pipeline', icon: Users },
 ];
 
@@ -66,6 +68,7 @@ export function ForecastingPage() {
         <div className="p-6">
           {activeTab === 'plan-vs-actual' && <PlanVsActualTab />}
           {activeTab === 'what-if' && <WhatIfTab />}
+          {activeTab === 'proforma' && <ProformaTab />}
           {activeTab === 'pipeline' && <PipelineTab />}
         </div>
       </div>

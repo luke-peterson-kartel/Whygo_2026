@@ -1,45 +1,126 @@
-import type { ScenarioInputs, ScenarioOutputs, QuarterlyData, PipelineDeal } from '@/types/forecasting.types';
+import type { ScenarioInputs, ScenarioOutputs, QuarterlyData, PipelineDeal, MonthlySpecs } from '@/types/forecasting.types';
 
 /**
- * Revenue Calculation Model
+ * Revenue Calculation Model - Month-Level Granularity
  *
  * Deal Payment Structure:
- * - Month 1-2: Spec period (no payment)
- * - Month 3: 3x monthly payment (retroactive for months 1-2 + current)
- * - Months 4-12: Regular monthly payments
+ * - Month 1-2 of deal: Spec period (no payment)
+ * - Month 3 of deal: 3x monthly payment (retroactive for months 1-2 + current)
+ * - Months 4+ of deal: Regular monthly payments until end of year
  *
- * Revenue timing by quarter of spec signing:
- * - Q1 spec (Jan) -> converts Mar -> pays 3x Mar + 9 months (Apr-Dec)
- * - Q2 spec (Apr) -> converts Jun -> pays 3x Jun + 6 months (Jul-Dec)
- * - Q3 spec (Jul) -> converts Sep -> pays 3x Sep + 3 months (Oct-Dec)
- * - Q4 spec (Oct) -> converts Dec -> pays 3x Dec + 0 months remaining
+ * Key insight: A spec signed in February doesn't pay until April (Month 3 of deal).
+ * Q1 revenue only comes from specs signed in January that convert in March.
  */
 
-// Months of regular payments remaining in year after Month 3 payment, by quarter
-const REMAINING_MONTHS_BY_QUARTER: QuarterlyData = {
-  q1: 9,  // Apr-Dec
-  q2: 6,  // Jul-Dec
-  q3: 3,  // Oct-Dec
-  q4: 0,  // No remaining months in year
+// Get the conversion month (spec month + 2 for spec period)
+function getConversionMonth(specMonth: number): number {
+  return specMonth + 2; // Month 3 of the deal
+}
+
+// Month key to number mapping
+const MONTH_TO_NUMBER: Record<keyof MonthlySpecs, number> = {
+  jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
+  jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
 };
+
+/**
+ * Convert MonthlySpecs to array of {specMonth, count}
+ */
+function getSpecsByMonth(specsPerMonth: MonthlySpecs): Array<{ specMonth: number; count: number }> {
+  const result: Array<{ specMonth: number; count: number }> = [];
+
+  for (const [key, count] of Object.entries(specsPerMonth)) {
+    if (count > 0) {
+      result.push({ specMonth: MONTH_TO_NUMBER[key as keyof MonthlySpecs], count });
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Calculate revenue for a single converted client
+ * Returns monthly revenue breakdown from conversion month through December
+ */
+function calculateClientRevenue(
+  specMonth: number,
+  monthlyFee: number
+): { [month: number]: number } {
+  const revenue: { [month: number]: number } = {};
+  const conversionMonth = getConversionMonth(specMonth);
+
+  // If conversion is after December, no revenue this year
+  if (conversionMonth > 12) {
+    return revenue;
+  }
+
+  // Month 3 payment (3x retroactive)
+  revenue[conversionMonth] = 3 * monthlyFee;
+
+  // Regular monthly payments for remaining months
+  for (let m = conversionMonth + 1; m <= 12; m++) {
+    revenue[m] = monthlyFee;
+  }
+
+  return revenue;
+}
 
 /**
  * Calculate forecast outputs from scenario inputs
  */
 export function calculateForecast(inputs: ScenarioInputs): ScenarioOutputs {
-  const { specsPerQuarter, conversionRate, avgMonthlyFee } = inputs;
+  const { specsPerMonth, conversionRate, avgMonthlyFee } = inputs;
 
-  // Calculate conversions per quarter (specs * conversion rate)
-  const conversionsPerQuarter: QuarterlyData = {
-    q1: Math.round(specsPerQuarter.q1 * conversionRate),
-    q2: Math.round(specsPerQuarter.q2 * conversionRate),
-    q3: Math.round(specsPerQuarter.q3 * conversionRate),
-    q4: Math.round(specsPerQuarter.q4 * conversionRate),
+  // Get specs by month directly from input
+  const specsByMonth = getSpecsByMonth(specsPerMonth);
+
+  // Initialize monthly revenue
+  const monthlyRevenue: { [month: number]: number } = {};
+  for (let m = 1; m <= 12; m++) {
+    monthlyRevenue[m] = 0;
+  }
+
+  // Calculate total specs first
+  let totalSpecs = 0;
+  let specsConvertingThisYear = 0;
+
+  for (const { specMonth, count } of specsByMonth) {
+    totalSpecs += count;
+    const conversionMonth = getConversionMonth(specMonth);
+    if (conversionMonth <= 12) {
+      specsConvertingThisYear += count;
+    }
+  }
+
+  // Apply conversion rate to totals (not per-month to avoid rounding errors)
+  const totalConversions = Math.round(totalSpecs * conversionRate);
+  const conversionsThisYear = Math.round(specsConvertingThisYear * conversionRate);
+
+  // Distribute conversions proportionally across months for revenue timing
+  // Each month's share of conversions = (month's specs / total specs) * total conversions
+  for (const { specMonth, count } of specsByMonth) {
+    const conversionMonth = getConversionMonth(specMonth);
+
+    // Only add to 2026 cash revenue if conversion happens this year
+    if (conversionMonth <= 12 && specsConvertingThisYear > 0) {
+      // Proportional conversions for this month's cohort
+      const monthConversions = Math.round((count / specsConvertingThisYear) * conversionsThisYear);
+
+      // Add revenue for each converted client (only for 2026)
+      const clientRevenue = calculateClientRevenue(specMonth, avgMonthlyFee);
+      for (const [month, amount] of Object.entries(clientRevenue)) {
+        monthlyRevenue[parseInt(month)] += amount * monthConversions;
+      }
+    }
+  }
+
+  // Aggregate to quarterly
+  const quarterlyRevenue: QuarterlyData = {
+    q1: monthlyRevenue[1] + monthlyRevenue[2] + monthlyRevenue[3],
+    q2: monthlyRevenue[4] + monthlyRevenue[5] + monthlyRevenue[6],
+    q3: monthlyRevenue[7] + monthlyRevenue[8] + monthlyRevenue[9],
+    q4: monthlyRevenue[10] + monthlyRevenue[11] + monthlyRevenue[12],
   };
-
-  // Calculate revenue per quarter
-  // Each converted client generates: 3x payment in conversion quarter + ongoing MRR
-  const quarterlyRevenue = calculateQuarterlyRevenue(conversionsPerQuarter, avgMonthlyFee);
 
   // Calculate cumulative revenue
   const cumulativeRevenue: QuarterlyData = {
@@ -49,78 +130,37 @@ export function calculateForecast(inputs: ScenarioInputs): ScenarioOutputs {
     q4: quarterlyRevenue.q1 + quarterlyRevenue.q2 + quarterlyRevenue.q3 + quarterlyRevenue.q4,
   };
 
-  const totalSpecs = specsPerQuarter.q1 + specsPerQuarter.q2 + specsPerQuarter.q3 + specsPerQuarter.q4;
-  const totalConversions = conversionsPerQuarter.q1 + conversionsPerQuarter.q2 + conversionsPerQuarter.q3 + conversionsPerQuarter.q4;
+  // Booked revenue = ALL conversions × ACV (full 12-month contract value)
+  // This represents total contract value signed, regardless of when revenue arrives
+  const bookedRevenue = totalConversions * avgMonthlyFee * 12;
+
+  // 2026 cash revenue = only from specs that convert within the year
   const annualRevenue = cumulativeRevenue.q4;
-  const avgACV = totalConversions > 0 ? Math.round(annualRevenue / totalConversions) : 0;
+
+  // Avg ACV = full 12-month contract value per client
+  const avgACV = avgMonthlyFee * 12;
 
   return {
     quarterlyRevenue,
     cumulativeRevenue,
     annualRevenue,
-    totalSpecs,
-    totalConversions,
+    bookedRevenue,
+    totalSpecs,              // All specs signed
+    totalConversions,        // All conversions (for booked revenue)
+    bookedConversions: conversionsThisYear, // Conversions that happen in 2026
     avgACV,
   };
 }
 
 /**
- * Calculate revenue by quarter considering payment timing
- */
-function calculateQuarterlyRevenue(
-  conversions: QuarterlyData,
-  monthlyFee: number
-): QuarterlyData {
-  const month3Payment = 3 * monthlyFee;
-
-  // Q1 Revenue: Q1 conversions pay 3x in Q1
-  const q1Revenue = conversions.q1 * month3Payment;
-
-  // Q2 Revenue:
-  // - Q1 conversions: 3 months of regular MRR (Apr, May, Jun)
-  // - Q2 conversions: 3x payment in Q2
-  const q2Revenue =
-    (conversions.q1 * 3 * monthlyFee) +
-    (conversions.q2 * month3Payment);
-
-  // Q3 Revenue:
-  // - Q1 conversions: 3 months of regular MRR (Jul, Aug, Sep)
-  // - Q2 conversions: 3 months of regular MRR (Jul, Aug, Sep)
-  // - Q3 conversions: 3x payment in Q3
-  const q3Revenue =
-    (conversions.q1 * 3 * monthlyFee) +
-    (conversions.q2 * 3 * monthlyFee) +
-    (conversions.q3 * month3Payment);
-
-  // Q4 Revenue:
-  // - Q1 conversions: 3 months of regular MRR (Oct, Nov, Dec)
-  // - Q2 conversions: 3 months of regular MRR (Oct, Nov, Dec)
-  // - Q3 conversions: 3 months of regular MRR (Oct, Nov, Dec)
-  // - Q4 conversions: 3x payment in Q4
-  const q4Revenue =
-    (conversions.q1 * 3 * monthlyFee) +
-    (conversions.q2 * 3 * monthlyFee) +
-    (conversions.q3 * 3 * monthlyFee) +
-    (conversions.q4 * month3Payment);
-
-  return {
-    q1: q1Revenue,
-    q2: q2Revenue,
-    q3: q3Revenue,
-    q4: q4Revenue,
-  };
-}
-
-/**
- * Calculate total revenue for a single client based on when they signed
+ * Calculate total revenue for a single client based on when they signed (for reference)
  */
 export function calculateClientAnnualRevenue(
   monthlyFee: number,
-  signQuarter: keyof QuarterlyData
+  specMonth: number
 ): number {
-  const month3Payment = 3 * monthlyFee;
-  const remainingMonths = REMAINING_MONTHS_BY_QUARTER[signQuarter];
-  return month3Payment + (remainingMonths * monthlyFee);
+  const clientRevenue = calculateClientRevenue(specMonth, monthlyFee);
+  return Object.values(clientRevenue).reduce((sum, v) => sum + v, 0);
 }
 
 /**

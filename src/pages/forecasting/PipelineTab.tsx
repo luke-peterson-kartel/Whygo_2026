@@ -1,23 +1,26 @@
 import { useState } from 'react';
-import { Plus, MoreHorizontal, Building2 } from 'lucide-react';
+import { Plus, Building2, Pencil, Trash2, AlertCircle, RefreshCw } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils/forecastCalculations';
-import { STAGE_CONFIG } from '@/types/forecasting.types';
+import { STAGE_CONFIG, WHYGO_QUARTERLY_TARGETS } from '@/types/forecasting.types';
 import type { PipelineDeal, DealStage } from '@/types/forecasting.types';
-
-// Placeholder data - will be replaced with Firebase data in Phase 4
-const PLACEHOLDER_DEALS: Omit<PipelineDeal, 'createdBy' | 'createdAt' | 'updatedAt'>[] = [
-  { id: '1', companyName: 'Horizon Media', contactName: 'Jane Smith', stage: 'decision', probability: 60, monthlyFee: 100000, specSignedDate: null, expectedConversionDate: null, notes: '' },
-  { id: '2', companyName: 'Newell / Bubba', contactName: 'Bob Wilson', stage: 'in_spec', probability: 50, monthlyFee: 75000, specSignedDate: null, expectedConversionDate: null, notes: '' },
-  { id: '3', companyName: 'Marc Jacobs', contactName: 'Alice Brown', stage: 'spec_signed', probability: 40, monthlyFee: 66667, specSignedDate: null, expectedConversionDate: null, notes: '' },
-  { id: '4', companyName: 'Saatchi / Toyota', contactName: 'Tom Davis', stage: 'prospect', probability: 25, monthlyFee: 83333, specSignedDate: null, expectedConversionDate: null, notes: '' },
-  { id: '5', companyName: 'Amazon', contactName: 'Sarah Lee', stage: 'prospect', probability: 10, monthlyFee: 125000, specSignedDate: null, expectedConversionDate: null, notes: '' },
-];
+import { usePipelineDeals } from '@/hooks/usePipelineDeals';
+import { useSalesWhyGOData } from '@/hooks/useSalesWhyGOData';
+import { DealFormModal } from '@/components/forecasting/DealFormModal';
 
 type StageFilter = DealStage | 'all';
 
 export function PipelineTab() {
+  const { deals, loading: dealsLoading, error: dealsError, addDeal, updateDeal, deleteDeal } = usePipelineDeals();
+  const { targets, loading: targetsLoading } = useSalesWhyGOData(2026);
   const [stageFilter, setStageFilter] = useState<StageFilter>('all');
-  const deals = PLACEHOLDER_DEALS;
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingDeal, setEditingDeal] = useState<PipelineDeal | null>(null);
+  const [deletingDealId, setDeletingDealId] = useState<string | null>(null);
+
+  // Get revenue target from WhyGO, fallback to default
+  const revenueTarget = targets.q4.revenue > 0 ? targets.q4.revenue : WHYGO_QUARTERLY_TARGETS.q4;
+  const loading = dealsLoading || targetsLoading;
+  const error = dealsError;
 
   // Filter deals
   const filteredDeals = stageFilter === 'all'
@@ -39,6 +42,72 @@ export function PipelineTab() {
     return acc;
   }, {} as Record<DealStage, number>);
 
+  // Handlers
+  const handleAddDeal = () => {
+    setEditingDeal(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditDeal = (deal: PipelineDeal) => {
+    setEditingDeal(deal);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteDeal = async (dealId: string) => {
+    if (!confirm('Are you sure you want to delete this deal?')) return;
+
+    setDeletingDealId(dealId);
+    try {
+      await deleteDeal(dealId);
+    } catch (err) {
+      console.error('Error deleting deal:', err);
+      alert('Failed to delete deal');
+    } finally {
+      setDeletingDealId(null);
+    }
+  };
+
+  const handleSaveDeal = async (dealData: Omit<PipelineDeal, 'id' | 'createdBy' | 'createdAt' | 'updatedAt'>) => {
+    if (editingDeal) {
+      // Update existing deal
+      await updateDeal(editingDeal.id, dealData);
+    } else {
+      // Add new deal
+      await addDeal(dealData);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingDeal(null);
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+        <p className="text-red-700 mb-4">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Pipeline Summary */}
@@ -55,8 +124,8 @@ export function PipelineTab() {
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-5">
           <p className="text-sm text-gray-500 mb-1">Pipeline Coverage</p>
-          <p className="text-3xl font-bold text-gray-900">{(totalPipeline / 7000000).toFixed(1)}x</p>
-          <p className="text-xs text-gray-400 mt-1">vs $7M target</p>
+          <p className="text-3xl font-bold text-gray-900">{weightedPipeline > 0 && revenueTarget > 0 ? ((weightedPipeline / revenueTarget) * 100).toFixed(1) : '0.0'}%</p>
+          <p className="text-xs text-gray-400 mt-1">vs {formatCurrency(revenueTarget)} target</p>
         </div>
       </div>
 
@@ -97,7 +166,7 @@ export function PipelineTab() {
           <h3 className="text-lg font-semibold text-gray-900">Pipeline Deals</h3>
           <button
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
-            onClick={() => {/* TODO: Add deal modal */}}
+            onClick={handleAddDeal}
           >
             <Plus className="w-4 h-4" />
             Add Deal
@@ -126,8 +195,8 @@ export function PipelineTab() {
                 <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Weighted
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider w-12">
-
+                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -136,6 +205,7 @@ export function PipelineTab() {
                 const acv = deal.monthlyFee * 12;
                 const weighted = acv * deal.probability / 100;
                 const stageConfig = STAGE_CONFIG[deal.stage];
+                const isDeleting = deletingDealId === deal.id;
                 return (
                   <tr key={deal.id} className="hover:bg-gray-50">
                     <td className="px-4 py-4">
@@ -145,7 +215,7 @@ export function PipelineTab() {
                         </div>
                         <div>
                           <p className="font-medium text-gray-900">{deal.companyName}</p>
-                          <p className="text-sm text-gray-500">{deal.contactName}</p>
+                          <p className="text-sm text-gray-500">{deal.contactName || '—'}</p>
                         </div>
                       </div>
                     </td>
@@ -166,10 +236,28 @@ export function PipelineTab() {
                     <td className="px-4 py-4 text-right text-sm font-medium text-indigo-600">
                       {formatCurrency(weighted)}
                     </td>
-                    <td className="px-4 py-4 text-center">
-                      <button className="p-1 text-gray-400 hover:text-gray-600 rounded">
-                        <MoreHorizontal className="w-5 h-5" />
-                      </button>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => handleEditDeal(deal)}
+                          className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                          title="Edit deal"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteDeal(deal.id)}
+                          disabled={isDeleting}
+                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
+                          title="Delete deal"
+                        >
+                          {isDeleting ? (
+                            <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -180,7 +268,19 @@ export function PipelineTab() {
 
         {filteredDeals.length === 0 && (
           <div className="p-8 text-center text-gray-500">
-            No deals match the current filter
+            {deals.length === 0 ? (
+              <div>
+                <p className="mb-2">No deals in your pipeline yet</p>
+                <button
+                  onClick={handleAddDeal}
+                  className="text-indigo-600 hover:text-indigo-700 font-medium"
+                >
+                  Add your first deal
+                </button>
+              </div>
+            ) : (
+              'No deals match the current filter'
+            )}
           </div>
         )}
       </div>
@@ -208,10 +308,13 @@ export function PipelineTab() {
         </div>
       </div>
 
-      {/* Data Source Note */}
-      <p className="text-xs text-gray-400 text-center">
-        Pipeline data will be persisted to Firebase in Phase 4
-      </p>
+      {/* Deal Form Modal */}
+      <DealFormModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSave={handleSaveDeal}
+        deal={editingDeal}
+      />
     </div>
   );
 }

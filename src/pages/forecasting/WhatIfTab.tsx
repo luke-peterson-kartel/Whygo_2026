@@ -1,11 +1,35 @@
 import { useState, useMemo } from 'react';
-import { Calculator, Save } from 'lucide-react';
+import { Calculator, Save, RefreshCw } from 'lucide-react';
 import { calculateForecast, formatCurrency, formatPercent } from '@/lib/utils/forecastCalculations';
 import { DEFAULT_SCENARIO_INPUTS, WHYGO_QUARTERLY_TARGETS } from '@/types/forecasting.types';
-import type { ScenarioInputs } from '@/types/forecasting.types';
+import { useForecastingScenarios } from '@/hooks/useForecastingScenarios';
+import { useDevMode } from '@/hooks/useDevMode';
+import { SaveScenarioModal } from '@/components/forecasting/SaveScenarioModal';
+import { ScenarioCard } from '@/components/forecasting/ScenarioCard';
+import type { ScenarioInputs, ForecastingScenario, ScenarioType, MonthlySpecs } from '@/types/forecasting.types';
+
+// Short month labels for compact display
+const MONTH_KEYS: Array<keyof MonthlySpecs> = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+const MONTH_SHORT_LABELS: Record<keyof MonthlySpecs, string> = {
+  jan: 'Jan', feb: 'Feb', mar: 'Mar', apr: 'Apr', may: 'May', jun: 'Jun',
+  jul: 'Jul', aug: 'Aug', sep: 'Sep', oct: 'Oct', nov: 'Nov', dec: 'Dec',
+};
 
 export function WhatIfTab() {
+  const { user } = useDevMode();
   const [inputs, setInputs] = useState<ScenarioInputs>(DEFAULT_SCENARIO_INPUTS);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
+
+  const {
+    scenarios,
+    loading: scenariosLoading,
+    error: scenariosError,
+    createScenario,
+    deleteScenario,
+    creating,
+    refetch,
+  } = useForecastingScenarios({ year: 2026 }, user ? { email: user.email, name: user.name } : undefined);
 
   // Calculate outputs whenever inputs change
   const outputs = useMemo(() => calculateForecast(inputs), [inputs]);
@@ -14,14 +38,48 @@ export function WhatIfTab() {
   const targetVariance = outputs.annualRevenue - WHYGO_QUARTERLY_TARGETS.q4;
   const isAboveTarget = targetVariance >= 0;
 
-  const updateSpecsForQuarter = (quarter: keyof typeof inputs.specsPerQuarter, value: number) => {
+  // Calculate total specs
+  const totalSpecs = MONTH_KEYS.reduce((sum, month) => sum + inputs.specsPerMonth[month], 0);
+
+  const updateSpecsForMonth = (month: keyof MonthlySpecs, value: number) => {
     setInputs(prev => ({
       ...prev,
-      specsPerQuarter: {
-        ...prev.specsPerQuarter,
-        [quarter]: value,
+      specsPerMonth: {
+        ...prev.specsPerMonth,
+        [month]: value,
       },
     }));
+    setSelectedScenarioId(null);
+  };
+
+  const handleSaveScenario = async (data: { name: string; description: string; type: ScenarioType }) => {
+    const result = await createScenario({
+      name: data.name,
+      description: data.description,
+      type: data.type,
+      inputs,
+    });
+
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to save scenario');
+    }
+  };
+
+  const handleLoadScenario = (scenario: ForecastingScenario) => {
+    setInputs(scenario.inputs);
+    setSelectedScenarioId(scenario.id);
+  };
+
+  const handleDeleteScenario = async (id: string) => {
+    await deleteScenario(id);
+    if (selectedScenarioId === id) {
+      setSelectedScenarioId(null);
+    }
+  };
+
+  const handleResetToDefault = () => {
+    setInputs(DEFAULT_SCENARIO_INPUTS);
+    setSelectedScenarioId(null);
   };
 
   return (
@@ -30,37 +88,45 @@ export function WhatIfTab() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Inputs Panel */}
         <div className="bg-gray-50 rounded-lg p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <Calculator className="w-5 h-5 text-indigo-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Scenario Inputs</h3>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Calculator className="w-5 h-5 text-indigo-600" />
+              <h3 className="text-lg font-semibold text-gray-900">Scenario Inputs</h3>
+            </div>
+            <button
+              onClick={handleResetToDefault}
+              className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
+              title="Reset to baseline"
+            >
+              <RefreshCw className="w-3 h-3" />
+              Reset
+            </button>
           </div>
 
-          {/* Specs per Quarter */}
-          <div className="space-y-4 mb-6">
+          {/* Specs per Month */}
+          <div className="space-y-3 mb-6">
             <label className="block text-sm font-medium text-gray-700">
-              Specs per Quarter
+              Specs Closing by Month
             </label>
-            {(['q1', 'q2', 'q3', 'q4'] as const).map((quarter) => (
-              <div key={quarter} className="flex items-center gap-4">
-                <span className="w-8 text-sm font-medium text-gray-600 uppercase">
-                  {quarter}
-                </span>
-                <input
-                  type="range"
-                  min="0"
-                  max="10"
-                  value={inputs.specsPerQuarter[quarter]}
-                  onChange={(e) => updateSpecsForQuarter(quarter, parseInt(e.target.value))}
-                  className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                />
-                <span className="w-8 text-sm font-semibold text-gray-900 text-right">
-                  {inputs.specsPerQuarter[quarter]}
-                </span>
-              </div>
-            ))}
-            <p className="text-xs text-gray-500 mt-1">
-              Total: {inputs.specsPerQuarter.q1 + inputs.specsPerQuarter.q2 + inputs.specsPerQuarter.q3 + inputs.specsPerQuarter.q4} specs
-              (WhyGO target: 18)
+            <div className="grid grid-cols-6 gap-2">
+              {MONTH_KEYS.map((month) => (
+                <div key={month} className="text-center">
+                  <label className="block text-xs text-gray-500 mb-1">
+                    {MONTH_SHORT_LABELS[month]}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="10"
+                    value={inputs.specsPerMonth[month]}
+                    onChange={(e) => updateSpecsForMonth(month, Math.max(0, parseInt(e.target.value) || 0))}
+                    className="w-full px-2 py-1 text-center text-sm border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500">
+              Total: {totalSpecs} specs (WhyGO target: 18). Specs convert 2 months after closing.
             </p>
           </div>
 
@@ -75,7 +141,10 @@ export function WhatIfTab() {
                 min="0"
                 max="100"
                 value={inputs.conversionRate * 100}
-                onChange={(e) => setInputs(prev => ({ ...prev, conversionRate: parseInt(e.target.value) / 100 }))}
+                onChange={(e) => {
+                  setInputs(prev => ({ ...prev, conversionRate: parseInt(e.target.value) / 100 }));
+                  setSelectedScenarioId(null);
+                }}
                 className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
               />
               <span className="w-12 text-sm font-semibold text-gray-900 text-right">
@@ -95,7 +164,10 @@ export function WhatIfTab() {
               <input
                 type="number"
                 value={inputs.avgMonthlyFee}
-                onChange={(e) => setInputs(prev => ({ ...prev, avgMonthlyFee: parseInt(e.target.value) || 0 }))}
+                onChange={(e) => {
+                  setInputs(prev => ({ ...prev, avgMonthlyFee: parseInt(e.target.value) || 0 }));
+                  setSelectedScenarioId(null);
+                }}
                 className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 step="5000"
               />
@@ -110,22 +182,33 @@ export function WhatIfTab() {
             <h3 className="text-lg font-semibold text-gray-900">Projected Outcome</h3>
             <button
               className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
-              onClick={() => {/* TODO: Save scenario */}}
+              onClick={() => setShowSaveModal(true)}
             >
               <Save className="w-4 h-4" />
               Save Scenario
             </button>
           </div>
 
-          {/* Annual Revenue */}
-          <div className="text-center mb-6 pb-6 border-b border-gray-200">
-            <p className="text-sm text-gray-500 mb-1">Annual Revenue</p>
-            <p className="text-4xl font-bold text-gray-900">
-              {formatCurrency(outputs.annualRevenue)}
-            </p>
-            <p className={`text-sm mt-1 ${isAboveTarget ? 'text-green-600' : 'text-red-600'}`}>
-              {isAboveTarget ? '+' : ''}{formatCurrency(targetVariance)} vs $7M target
-            </p>
+          {/* Revenue Summary */}
+          <div className="grid grid-cols-2 gap-4 mb-6 pb-6 border-b border-gray-200">
+            <div className="text-center">
+              <p className="text-sm text-gray-500 mb-1">Booked Revenue (ACV)</p>
+              <p className="text-3xl font-bold text-green-600">
+                {formatCurrency(outputs.bookedRevenue)}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {outputs.totalConversions} clients × {formatCurrency(inputs.avgMonthlyFee * 12)} each
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-gray-500 mb-1">2026 Cash Revenue</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {formatCurrency(outputs.annualRevenue)}
+              </p>
+              <p className={`text-xs mt-1 ${isAboveTarget ? 'text-green-600' : 'text-red-600'}`}>
+                {isAboveTarget ? '+' : ''}{formatCurrency(targetVariance)} vs $7M target
+              </p>
+            </div>
           </div>
 
           {/* Quarterly Breakdown */}
@@ -170,16 +253,50 @@ export function WhatIfTab() {
         </div>
       </div>
 
-      {/* Saved Scenarios - Placeholder for Phase 2 */}
+      {/* Saved Scenarios */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Saved Scenarios</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4 border border-dashed border-gray-300 rounded-lg text-center text-gray-500">
-            <p className="text-sm">No saved scenarios yet</p>
-            <p className="text-xs mt-1">Save your first scenario above</p>
-          </div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Saved Scenarios</h3>
+          {scenariosLoading && (
+            <div className="w-4 h-4 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+          )}
         </div>
+
+        {scenariosError && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 mb-4">
+            {scenariosError}
+            <button onClick={refetch} className="ml-2 underline">Retry</button>
+          </div>
+        )}
+
+        {!scenariosLoading && scenarios.length === 0 ? (
+          <div className="p-6 border border-dashed border-gray-300 rounded-lg text-center text-gray-500">
+            <p className="text-sm">No saved scenarios yet</p>
+            <p className="text-xs mt-1">Save your first scenario using the button above</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {scenarios.map((scenario) => (
+              <ScenarioCard
+                key={scenario.id}
+                scenario={scenario}
+                onLoad={handleLoadScenario}
+                onDelete={handleDeleteScenario}
+                isSelected={selectedScenarioId === scenario.id}
+              />
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Save Modal */}
+      <SaveScenarioModal
+        isOpen={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        onSave={handleSaveScenario}
+        inputs={inputs}
+        saving={creating}
+      />
     </div>
   );
 }

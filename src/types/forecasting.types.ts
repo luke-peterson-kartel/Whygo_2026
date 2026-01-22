@@ -14,12 +14,30 @@ export interface QuarterlyData {
   q4: number;
 }
 
+// Month number (1-12)
+export type MonthNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+
+// Monthly specs structure - specs closing each month
+export interface MonthlySpecs {
+  jan: number;
+  feb: number;
+  mar: number;
+  apr: number;
+  may: number;
+  jun: number;
+  jul: number;
+  aug: number;
+  sep: number;
+  oct: number;
+  nov: number;
+  dec: number;
+}
+
 // Forecasting scenario inputs
 export interface ScenarioInputs {
-  specsPerQuarter: QuarterlyData;
+  specsPerMonth: MonthlySpecs;   // Specs closing each month
   conversionRate: number;        // 0-1 (e.g., 0.75 = 75%)
   avgMonthlyFee: number;         // e.g., 75000
-  specPeriodMonths: number;      // Default: 2
 }
 
 // Forecasting scenario calculated outputs
@@ -27,8 +45,10 @@ export interface ScenarioOutputs {
   quarterlyRevenue: QuarterlyData;
   cumulativeRevenue: QuarterlyData;
   annualRevenue: number;
+  bookedRevenue: number;           // Revenue from specs already converted (based on current month)
   totalSpecs: number;
   totalConversions: number;
+  bookedConversions: number;       // Conversions already happened (based on current month)
   avgACV: number;
 }
 
@@ -99,12 +119,40 @@ export const STAGE_CONFIG: Record<DealStage, { label: string; color: string }> =
   lost: { label: 'Lost', color: 'red' },
 };
 
-// Default baseline scenario inputs (matching Sales WhyGO targets)
+// Default baseline scenario inputs (matching Sales WhyGO targets - 18 specs distributed)
 export const DEFAULT_SCENARIO_INPUTS: ScenarioInputs = {
-  specsPerQuarter: { q1: 5, q2: 5, q3: 4, q4: 4 }, // 18 total
+  specsPerMonth: {
+    jan: 0,   // No specs close in Jan (just starting the year)
+    feb: 2,
+    mar: 2,
+    apr: 2,
+    may: 2,
+    jun: 2,
+    jul: 2,
+    aug: 1,
+    sep: 1,
+    oct: 4,   // Q4 push
+    nov: 0,   // Nov/Dec specs won't convert until next year
+    dec: 0,
+  },
   conversionRate: 0.75,
   avgMonthlyFee: 75000,
-  specPeriodMonths: 2,
+};
+
+// Month labels for UI
+export const MONTH_LABELS: Record<MonthNumber, string> = {
+  1: 'January',
+  2: 'February',
+  3: 'March',
+  4: 'April',
+  5: 'May',
+  6: 'June',
+  7: 'July',
+  8: 'August',
+  9: 'September',
+  10: 'October',
+  11: 'November',
+  12: 'December',
 };
 
 // WhyGO quarterly targets for reference
