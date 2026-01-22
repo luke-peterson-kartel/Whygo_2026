@@ -11,6 +11,7 @@ import {
   Code,
   X,
   BarChart3,
+  TrendingUp,
 } from 'lucide-react';
 import { useDevMode } from '@/hooks/useDevMode';
 import { DevModeContext } from '@/contexts/DevModeContext';
@@ -110,6 +111,25 @@ export function Sidebar() {
               >
                 <BarChart3 className="w-5 h-5" />
                 <span>Management Dashboard</span>
+              </NavLink>
+            </li>
+          )}
+
+          {/* Forecasting - Only for executives and department heads */}
+          {(user?.level === 'executive' || user?.level === 'department_head') && (
+            <li>
+              <NavLink
+                to="/forecasting"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
+                    isActive
+                      ? 'bg-indigo-50 text-indigo-700 font-medium'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`
+                }
+              >
+                <TrendingUp className="w-5 h-5" />
+                <span>Forecasting</span>
               </NavLink>
             </li>
           )}

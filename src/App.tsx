@@ -16,6 +16,7 @@ import { MyGoalsView } from '@/pages/dashboards/MyGoalsView';
 import { ManagementDashboard } from '@/pages/dashboards/ManagementDashboard';
 import { CreateGoalPage } from '@/pages/CreateGoalPage';
 import { WhyGODetailPage } from '@/pages/WhyGODetailPage';
+import { ForecastingPage } from '@/pages/forecasting/ForecastingPage';
 import { DEPARTMENT_CONFIGS } from '@/lib/departmentConfig';
 import { DevModeProvider } from '@/contexts/DevModeContext';
 
@@ -41,6 +42,7 @@ export function App() {
             {/* Dashboard routes */}
             <Route path="/company" element={<CompanyView />} />
             <Route path="/management" element={<ManagementDashboard />} />
+            <Route path="/forecasting" element={<ForecastingPage />} />
             <Route path="/department/:dept" element={<DepartmentRouter />} />
             <Route path="/my-goals" element={<MyGoalsView />} />
 
