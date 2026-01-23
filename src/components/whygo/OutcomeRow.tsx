@@ -271,7 +271,7 @@ export function OutcomeRow({ outcome, number, whygoId, refetch }: OutcomeRowProp
 
       {/* Quarterly Progress - Conditionally Rendered */}
       {isExpanded && (
-        <div className="px-4 pb-4">
+        <div className="px-3 pb-3">
           {/* Edit/Save/Cancel Buttons */}
           <div className="flex items-center justify-between mb-3 pt-2 border-t border-gray-200">
             <div className="text-sm text-gray-600">
@@ -329,8 +329,8 @@ export function OutcomeRow({ outcome, number, whygoId, refetch }: OutcomeRowProp
 
           {/* Outcome Details Editor - Only for executives and department heads */}
           {isEditing && canEditDetails && (
-            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="text-sm font-semibold text-blue-900 mb-3">Edit Outcome Details</h4>
+            <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <h4 className="text-sm font-semibold text-blue-900 mb-2">Edit Outcome Details</h4>
 
               {/* Description */}
               <div className="mb-3">
@@ -370,7 +370,7 @@ export function OutcomeRow({ outcome, number, whygoId, refetch }: OutcomeRowProp
               </div>
 
               {/* Targets Grid */}
-              <div className="grid grid-cols-5 gap-3">
+              <div className="grid grid-cols-5 gap-2">
                 <div>
                   <label htmlFor="annualTarget" className="block text-sm font-medium text-gray-700 mb-1">
                     Annual Target
@@ -445,7 +445,7 @@ export function OutcomeRow({ outcome, number, whygoId, refetch }: OutcomeRowProp
           )}
 
           {/* Quarter Cards */}
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-4 gap-2">
             <QuarterCardEditable
               quarter="Q1"
               target={isEditing && canEditDetails ? editedData.q1Target : outcome.q1Target}

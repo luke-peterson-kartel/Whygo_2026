@@ -107,7 +107,7 @@ export function ManagementDashboard() {
       </div>
 
       {/* Content sections */}
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Summary Metrics - Phase 3 */}
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Summary Metrics</h2>

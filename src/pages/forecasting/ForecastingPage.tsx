@@ -24,7 +24,7 @@ export function ForecastingPage() {
   const [activeTab, setActiveTab] = useState<TabId>('what-if');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-lg p-6 text-white">
         <div className="flex items-center gap-3 mb-2">

@@ -34,7 +34,7 @@ export function DepartmentView({ department, customSections }: DepartmentViewPro
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
           <div className={`p-3 bg-gradient-to-br ${config.colorScheme} rounded-lg`}>
             <Icon className="w-6 h-6 text-white" />
@@ -50,7 +50,7 @@ export function DepartmentView({ department, customSections }: DepartmentViewPro
 
       {/* Custom Sections (e.g., Four Handoff Cycle for Production) */}
       {customSections && (
-        <div className="mb-8">
+        <div className="mb-6">
           {customSections}
         </div>
       )}
@@ -67,7 +67,7 @@ export function DepartmentView({ department, customSections }: DepartmentViewPro
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {whygos.map((whygo, index) => (
             <WhyGOCard
               key={whygo.id}

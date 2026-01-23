@@ -127,7 +127,7 @@ export function PlanVsActualTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* WhyGO Targets Header */}
       <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-2">

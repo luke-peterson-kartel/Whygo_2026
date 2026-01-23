@@ -54,7 +54,7 @@ export function AllGoalsView() {
   return (
     <div>
       {/* Page Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
           <div className="p-3 bg-blue-100 rounded-lg">
             <Target className="w-6 h-6 text-blue-600" />
@@ -84,7 +84,7 @@ export function AllGoalsView() {
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {DEPARTMENT_CONFIGS.map(({ key, name, colorScheme, defaultExpanded }) => {
             const deptWhyGOs = organizedByDept[key];
             if (!deptWhyGOs || deptWhyGOs.length === 0) return null;

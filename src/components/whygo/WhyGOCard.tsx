@@ -3,7 +3,7 @@ import { WhyGOWithOutcomes } from '@/types/whygo.types';
 import { OutcomeRow } from './OutcomeRow';
 import { SupportingDepartmentGoals } from './SupportingDepartmentGoals';
 import { StatusChangeButton } from './StatusChangeButton';
-import { Target, User, Calendar, Edit2, Trash2 } from 'lucide-react';
+import { Target, User, Calendar, Edit2, Trash2, ChevronDown, ChevronRight, ListChecks } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUpdateWhyGO } from '@/hooks/useUpdateWhyGO';
 import { useDeleteWhyGO } from '@/hooks/useDeleteWhyGO';
@@ -25,9 +25,35 @@ export function WhyGOCard({ whygo, number, showOwner = false, refetch }: WhyGOCa
   const [editedGoal, setEditedGoal] = useState(whygo.goal);
   const [editedWhy, setEditedWhy] = useState(whygo.why);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [outcomesExpanded, setOutcomesExpanded] = useState(false);
 
   const canEdit = user && PermissionService.canEditWhyGO(user as any, whygo);
   const canDelete = user && PermissionService.canDeleteWhyGO(user as any, whygo);
+
+  const calculateOutcomesStatus = () => {
+    if (whygo.outcomes.length === 0) {
+      return { currentQuarter: 'Q1', onTrack: 0, atRisk: 0, offTrack: 0, notStarted: 0, total: 0 };
+    }
+
+    // Determine current quarter based on date
+    const month = new Date().getMonth();
+    const currentQuarter = month < 3 ? 'Q1' : month < 6 ? 'Q2' : month < 9 ? 'Q3' : 'Q4';
+    const statusKey = `${currentQuarter.toLowerCase()}Status` as 'q1Status' | 'q2Status' | 'q3Status' | 'q4Status';
+
+    let onTrack = 0, atRisk = 0, offTrack = 0, notStarted = 0;
+
+    whygo.outcomes.forEach(outcome => {
+      const status = outcome[statusKey];
+      if (status === '+') onTrack++;
+      else if (status === '~') atRisk++;
+      else if (status === '-') offTrack++;
+      else notStarted++;
+    });
+
+    return { currentQuarter, onTrack, atRisk, offTrack, notStarted, total: whygo.outcomes.length };
+  };
+
+  const outcomesStatus = calculateOutcomesStatus();
 
   const handleEdit = () => {
     setEditedGoal(whygo.goal);
@@ -75,7 +101,7 @@ export function WhyGOCard({ whygo, number, showOwner = false, refetch }: WhyGOCa
   return (
     <div className="bg-white border-2 border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-lg">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-t-lg">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             {number && (
@@ -142,7 +168,7 @@ export function WhyGOCard({ whygo, number, showOwner = false, refetch }: WhyGOCa
       </div>
 
       {/* WHY Statement */}
-      <div className="p-6 border-b border-gray-200 bg-blue-50">
+      <div className="p-4 border-b border-gray-200 bg-blue-50">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 mt-1">
             <div className="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded">
@@ -165,7 +191,7 @@ export function WhyGOCard({ whygo, number, showOwner = false, refetch }: WhyGOCa
 
       {/* Save/Cancel buttons when editing */}
       {isEditing && (
-        <div className="p-6 border-b border-gray-200 bg-gray-50 flex gap-3 justify-end">
+        <div className="p-4 border-b border-gray-200 bg-gray-50 flex gap-3 justify-end">
           <button
             onClick={handleCancel}
             className="px-4 py-2 text-gray-700 hover:text-gray-900 rounded-lg border border-gray-300 hover:border-gray-400 transition-colors"
@@ -183,56 +209,94 @@ export function WhyGOCard({ whygo, number, showOwner = false, refetch }: WhyGOCa
         </div>
       )}
 
-      {/* Supporting Department Goals - Only for Company Level */}
-      {whygo.level === 'company' && (
-        <div className="p-6 border-b border-gray-200">
-          <SupportingDepartmentGoals companyGoal={whygo.goal} />
-        </div>
-      )}
+      {/* Outcomes - Collapsible */}
+      <div className="border-b border-gray-200">
+        <button
+          onClick={() => setOutcomesExpanded(!outcomesExpanded)}
+          className="w-full p-4 hover:bg-green-50/50 transition-colors"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <ListChecks className="w-5 h-5 text-green-600" />
+              <h4 className="text-lg font-semibold text-gray-900">Outcomes</h4>
+              <span className="px-2 py-0.5 bg-green-100 text-green-700 text-sm font-medium rounded-full">
+                {whygo.outcomes.length}
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              {/* Current quarter status summary */}
+              <span className="text-sm text-gray-600">
+                {outcomesStatus.currentQuarter}: {outcomesStatus.onTrack}/{outcomesStatus.total} on track
+              </span>
+              {/* Overall status badge */}
+              {outcomesStatus.total > 0 && (
+                <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                  outcomesStatus.offTrack > 0 ? 'bg-red-100 text-red-700' :
+                  outcomesStatus.atRisk > 0 ? 'bg-yellow-100 text-yellow-700' :
+                  outcomesStatus.onTrack > 0 ? 'bg-green-100 text-green-700' :
+                  'bg-gray-100 text-gray-600'
+                }`}>
+                  {outcomesStatus.offTrack > 0 ? 'Off Track' :
+                   outcomesStatus.atRisk > 0 ? 'At Risk' :
+                   outcomesStatus.onTrack > 0 ? 'On Track' :
+                   'Not Started'}
+                </span>
+              )}
+              {outcomesExpanded ? (
+                <ChevronDown className="w-5 h-5 text-gray-500" />
+              ) : (
+                <ChevronRight className="w-5 h-5 text-gray-500" />
+              )}
+            </div>
+          </div>
+          {/* Segmented status bar */}
+          {outcomesStatus.total > 0 && (
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden flex">
+              {outcomesStatus.onTrack > 0 && (
+                <div className="h-full bg-green-500" style={{ width: `${(outcomesStatus.onTrack / outcomesStatus.total) * 100}%` }} />
+              )}
+              {outcomesStatus.atRisk > 0 && (
+                <div className="h-full bg-yellow-500" style={{ width: `${(outcomesStatus.atRisk / outcomesStatus.total) * 100}%` }} />
+              )}
+              {outcomesStatus.offTrack > 0 && (
+                <div className="h-full bg-red-500" style={{ width: `${(outcomesStatus.offTrack / outcomesStatus.total) * 100}%` }} />
+              )}
+              {outcomesStatus.notStarted > 0 && (
+                <div className="h-full bg-gray-400" style={{ width: `${(outcomesStatus.notStarted / outcomesStatus.total) * 100}%` }} />
+              )}
+            </div>
+          )}
+        </button>
 
-      {/* Outcomes */}
-      <div className="p-6">
-        <h4 className="text-lg font-semibold text-gray-900 mb-4">Outcomes</h4>
-
-        {whygo.outcomes.length === 0 ? (
-          <p className="text-gray-600 italic">No outcomes defined yet.</p>
-        ) : (
-          <div className="space-y-4">
-            {whygo.outcomes.map((outcome, index) => (
-              <OutcomeRow
-                key={outcome.id}
-                outcome={outcome}
-                number={index + 1}
-                whygoId={whygo.id}
-                refetch={refetch || (() => {})}
-              />
-            ))}
+        {outcomesExpanded && (
+          <div className="px-4 pb-4">
+            {whygo.outcomes.length === 0 ? (
+              <p className="text-gray-600 italic">No outcomes defined yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {whygo.outcomes.map((outcome, index) => (
+                  <OutcomeRow
+                    key={outcome.id}
+                    outcome={outcome}
+                    number={index + 1}
+                    whygoId={whygo.id}
+                    refetch={refetch || (() => {})}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* Status Change Controls - Executives and Department Heads */}
-      {user && (user.level === 'executive' || (user.level === 'department_head' && whygo.level === 'department' && whygo.department === user.department)) && !isEditing && (
-        <div className="px-6 pb-6 border-t border-gray-200 pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-gray-700 mb-1">Change Status</p>
-              <p className="text-xs text-gray-500">
-                {user.level === 'executive'
-                  ? 'Executives can modify any WhyGO status'
-                  : 'Department heads can modify their department WhyGO status'}
-              </p>
-            </div>
-            <StatusChangeButton
-              whygoId={whygo.id}
-              currentStatus={whygo.status}
-              whygoLevel={whygo.level}
-              whygoDepartment={whygo.department}
-              onStatusChanged={refetch}
-            />
-          </div>
+      {/* Supporting Department Goals - Only for Company Level (moved below Outcomes) */}
+      {whygo.level === 'company' && (
+        <div className="p-4 border-b border-gray-200">
+          <SupportingDepartmentGoals companyGoal={whygo.goal} />
         </div>
       )}
+
+      {/* Status Change Controls - Hidden for cleaner UI */}
 
       {/* Delete Confirmation Dialog */}
       {showDeleteConfirm && (

@@ -25,7 +25,7 @@ export function SupportingDepartmentGoals({ companyGoal }: SupportingDepartmentG
   if (supportingGoals.length === 0) return null;
 
   return (
-    <div className="border-t border-gray-200 pt-4 mt-4">
+    <div>
       {/* Collapsible Button */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}

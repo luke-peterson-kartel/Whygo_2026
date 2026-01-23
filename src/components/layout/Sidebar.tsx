@@ -43,12 +43,12 @@ export function Sidebar() {
 
   return (
     <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-4 border-b border-gray-200">
         <h1 className="text-2xl font-bold text-blue-600">WhyGo</h1>
         <p className="text-sm text-gray-500 mt-1">Kartel AI</p>
       </div>
 
-      <nav className="flex-1 overflow-y-auto p-4">
+      <nav className="flex-1 overflow-y-auto p-3">
         <ul className="space-y-2">
           {navigation.map((item) => (
             <li key={item.name}>
@@ -183,7 +183,7 @@ export function Sidebar() {
       )} */}
 
       {user && (
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-3 border-t border-gray-200">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-semibold">
               {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}

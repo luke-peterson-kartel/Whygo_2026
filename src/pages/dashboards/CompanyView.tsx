@@ -20,7 +20,7 @@ export function CompanyView() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
           <div className="p-3 bg-blue-100 rounded-lg">
             <Building2 className="w-6 h-6 text-blue-600" />
@@ -47,7 +47,7 @@ export function CompanyView() {
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {whygos.map((whygo, index) => (
             <WhyGOCard
               key={whygo.id}

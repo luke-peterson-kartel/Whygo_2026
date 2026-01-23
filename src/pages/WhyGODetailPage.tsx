@@ -97,18 +97,18 @@ export function WhyGODetailPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-4">
       {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
       >
         <ArrowLeft className="w-5 h-5" />
         <span className="font-medium">Back</span>
       </button>
 
       {/* Header Section */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
         {/* Metadata Badges */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
           <span className={`px-3 py-1 text-sm font-semibold rounded-full flex items-center gap-2 ${getLevelColor(whygo.level)}`}>
@@ -143,11 +143,11 @@ export function WhyGODetailPage() {
 
       {/* Analytics Summary Section */}
       {analytics && (
-        <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Analytics Summary</h2>
+        <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+          <h2 className="text-xl font-semibold text-gray-900 mb-3">Analytics Summary</h2>
 
           {/* Metrics Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
             {/* YTD Completion */}
             <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
               <div className="flex items-center gap-2 text-blue-700 mb-2">
@@ -250,15 +250,15 @@ export function WhyGODetailPage() {
       )}
 
       {/* Outcomes Section */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-        <div className="flex items-center gap-2 mb-4">
+      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+        <div className="flex items-center gap-2 mb-3">
           <ListChecks className="w-6 h-6 text-gray-700" />
           <h2 className="text-xl font-semibold text-gray-900">Outcomes</h2>
           <span className="text-sm text-gray-500">({whygo.outcomes?.length || 0})</span>
         </div>
 
         {whygo.outcomes && whygo.outcomes.length > 0 ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {whygo.outcomes.map((outcome, index) => (
               <OutcomeRow
                 key={outcome.id}
@@ -278,15 +278,15 @@ export function WhyGODetailPage() {
       </div>
 
       {/* Notes/Activity Feed Section */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <div className="flex items-center gap-2 mb-4">
+      <div className="bg-white border border-gray-200 rounded-lg p-4">
+        <div className="flex items-center gap-2 mb-3">
           <MessageSquare className="w-6 h-6 text-gray-700" />
           <h2 className="text-xl font-semibold text-gray-900">Notes & Activity</h2>
           <span className="text-sm text-gray-500">({notes.length})</span>
         </div>
 
         {/* Add Note Form */}
-        <div className="mb-6">
+        <div className="mb-4">
           <textarea
             value={noteText}
             onChange={(e) => setNoteText(e.target.value)}
@@ -315,7 +315,7 @@ export function WhyGODetailPage() {
             <p>No notes yet. Be the first to add one!</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {notes.map((note) => (
               <div key={note.id} className="border-l-4 border-blue-500 bg-gray-50 rounded-r-lg p-4">
                 <div className="flex items-start justify-between mb-2">
