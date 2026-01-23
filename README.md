@@ -1,6 +1,6 @@
 # WhyGo v.2 - Kartel AI Goal Management Platform
 
-A React + TypeScript web application for managing company, department, and individual WhyGOs (goals) at Kartel AI.
+A React + TypeScript web application for managing company, department, and individual WhyGOs (goals) at Kartel's AI.
 
 ## Tech Stack
 
